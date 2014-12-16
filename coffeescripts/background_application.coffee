@@ -64,8 +64,9 @@ class BackgroundApplication
         console.warn "Unknown method: %s", request.method
         false
 
-  constructor: (@subdomain, @auth_string) ->
+  constructor: (@subdomain, @auth_string, @tp_subdomain, @tp_auth_string) ->
     @client                = new Harvest(@subdomain, @auth_string)
+    @tpClient              = new TargetProcess(@tp_subdomain, @tp_auth_string)
     @version               = '0.3.6'
     @authorized            = false
     @total_hours           = 0.0
@@ -76,6 +77,7 @@ class BackgroundApplication
     @refresh_interval_time = 36e3
     @todays_entries        = []
     @projects              = []
+    @tpProjectList         = []
     @preferences           = {}
     @timer_running         = false
 
@@ -85,7 +87,7 @@ class BackgroundApplication
   
   # Class Methods
   @get_auth_data: (callback) ->
-    chrome.storage.local.get [ 'harvest_subdomain', 'harvest_auth_string', 'harvest_username' ], (items) ->
+    chrome.storage.local.get [ 'harvest_subdomain', 'harvest_auth_string', 'harvest_username', 'tp_subdomain', 'tp_username', 'tp_auth_string' ], (items) ->
       callback(items)
   
   @get_preferences: (callback) ->
@@ -134,6 +136,11 @@ class BackgroundApplication
     @get_preferences()
     prefs        = @preferences
     todays_hours = @client.get_today()
+    tpProjects = @tpClient.getProjects()
+
+    tpProjects.success (json) =>
+        $.each json, (item) =>
+            @tpProjectList.push { Id: item.Id, Name: item.Name }
 
     todays_hours.success (json) =>
       @authorized   = true

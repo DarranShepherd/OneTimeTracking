@@ -50,8 +50,8 @@ options_controller = ($scope) ->
       hayfever_prefs: $scope.preferences
     options.harvest_auth_string = btoa("#{$scope.username}:#{$scope.password}") if $scope.username and $scope.password
     options.tp_auth_string = btoa("#{$scope.tpusername}:#{$scope.tppassword}") if $scope.tpusername and $scope.tppassword
-    console.debug options.harvest_auth_string
-    console.debug options.tp_auth_string
+    #console.debug options.harvest_auth_string
+    #console.debug options.tp_auth_string
 
     storage.set options, ->
       $scope.password      = null
