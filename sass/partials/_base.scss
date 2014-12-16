@@ -1,0 +1,52 @@
+// Hayfever for Chrome
+// Sass Variables and Configuration Stylesheet
+
+// Dimensions
+$popup-width: 440px;
+
+// Fonts
+$helvetica: Helvetica, Arial, sans-serif;
+$helvetica-neue: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+// Colors
+$options-orange: #f26522;
+$orange: #db9c59;
+$light-gray: #e5e5e5;
+$tr-border: #e6e6e6;
+$tr-odd-bg: #ebf5fc;
+$th-background: #b6d9ff;
+$th-text: #536082;
+$dark-gray: #4d4d4d;
+$error-color: #A33434;
+$running-timer-background: #d9ffb5;
+$options-fieldset-border: #ddd;
+$cancel-hover: #d84848;
+
+$success-text: #3c763d;
+$success-background: #dff0d8;
+$success-border: #d6e9c6;
+
+$options-input-border: #ccc;
+$options-input-border-focus: #66afe9;
+
+$options-button-border: #eea236;
+$options-button-border-focus: #d58512;
+$options-button-background: #f26522;
+$options-button-background-focus: lighten($options-button-background, 5%);
+$options-button-shadow: rgba(0, 0, 0, 0.08);
+
+$popup-button-background: darken($th-background, 20%);
+$popup-button-background-focus: darken($popup-button-background, 5%);
+$popup-button-border: #3f89ca;
+
+$ultralight-shadow: rgba(0, 0, 0, 0.1);
+$light-shadow: rgba(0, 0, 0, 0.25);
+$medium-shadow: rgba(0, 0, 0, 0.35);
+$dark-shadow: rgba(0, 0, 0, 0.5);
+$input-shadow-inner: rgba(0, 0, 0, 0.075);
+$input-shadow-outer: rgba(102, 175, 233, 0.6);
+
+// Derivitive Colors
+$button-top: lighten($orange, 10%);
+$button-bottom: darken($orange, 10%);
+$button-hover-top: lighten($orange, 15%);

@@ -1,0 +1,156 @@
+/*
+ * Hayfever for Harvest
+ * Options Page Stylesheet
+ *
+ * Plagiarized from Skeet's options page styles (https://github.com/presently/skeet)
+ */
+
+@import "compass";
+@import "partials/base";
+@import "partials/mixins";
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: $helvetica;
+  font-size: 1em;
+  margin: 10px;
+  color: $dark-gray;
+}
+
+.container {
+  width: 70%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+#header {
+  padding-bottom: 2.5em;
+  padding-top: 1.5em;
+
+  h1 {
+    font-size: 1.8em;
+    display: inline;
+    padding-bottom: 43px;
+    padding-left: 75px;
+    padding-top: 34px;
+    background: url(../img/app_icon_64.png) no-repeat;
+    background-size: 64px;
+    background-position: 1px 18px;
+    letter-spacing: -1px;
+  }
+}
+
+#status {
+  @include border-radius(4px);
+  @include transition(all linear 500ms);
+  margin: 20px 0 40px 0;
+  padding: 15px;
+  background: $success-background;
+  border: 1px solid $success-border;
+  color: $success-text;
+  opacity: 1;
+
+  &.ng-hide-add, &.ng-hide-remove {
+    display: block !important;
+  }
+
+  &.ng-hide {
+    opacity: 0;
+  }
+}
+
+.input-group {
+  @include border-radius(4px);
+  border: 1px $options-fieldset-border solid;
+  margin-bottom: 20px;
+  padding: {
+    top: 0;
+    bottom: 5px;
+    left: 20px;
+    right: 20px;
+  };
+
+  h2 {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $options-fieldset-border;
+    font: {
+      size: 0.9em;
+      weight: bold;
+    };
+  }
+
+  label {
+    display: inline-block;
+    margin-bottom: 5px;
+    font: {
+      weight: bold;
+      size: 0.9em;
+    };
+  }
+
+  input[type="text"], input[type="email"], input[type="password"] {
+    @include border-radius(4px);
+    @include transition(border-color ease-in-out 150ms, box-shadow ease-in-out 150ms);
+    display: block;
+    width: 97%;
+    height: 34px;
+    padding: 2px 10px;
+    margin-bottom: 8px;
+    font-size: 0.88em;
+    vertical-align: middle;
+    background-color: white;
+    line-height: 1.428571429;
+    border: 1px solid $options-input-border;
+    outline: none;
+
+    &:focus {
+      @include box-shadow(
+        inset 0 1px 1px $input-shadow-inner,
+        0 0 8px $input-shadow-outer
+      );
+      border-color: $options-input-border-focus;
+    }
+  }
+
+  select, input[type="color"] {
+    display: block;
+  }
+
+  p span.hint {
+    font-size: 0.7em;
+    display: block;
+    font-style: italic;
+  }
+}
+
+button {
+  @include border-radius(4px);
+  color: white;
+  cursor: pointer;
+  font: {
+    size: 0.88em;
+    family: $helvetica;
+  };
+  text-align: center;
+  padding: 6px 12px;
+  border: 1px solid $options-button-border;
+  background: $options-button-background;
+  outline: none;
+
+  &:hover, &:focus {
+    background: $options-button-background-focus;
+    border-color: $options-button-border-focus;
+  }
+
+  &:focus {
+    @include box-shadow(inset 0 2px 4px $options-button-shadow);
+  }
+}
+
+p.info {
+  font-size: 11px;
+  font-style: italic; }

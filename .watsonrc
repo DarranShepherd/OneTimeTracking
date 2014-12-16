@@ -1,0 +1,32 @@
+# watson rc
+# watson - inline issue manager
+# [goosecode] labs
+
+
+# Directories
+[dirs]
+./
+
+
+# Tags
+[tags]
+fix
+review
+todo
+
+
+# Ignores
+[ignore]
+.git
+*.swp
+build/img
+build/css
+build/js
+build/fonts
+*.png
+*.jpg
+LICENSE
+.DS_Store
+.versions.conf
+Gemfile*
+pkg/*
