@@ -20,6 +20,7 @@ class BackgroundApplication
             send_response
               authorized: @authorized
               projects: @projects
+              tpProjects: @tpProjectList
               clients: @clients
               timers: @todays_entries
               total_hours: @total_hours
@@ -31,6 +32,7 @@ class BackgroundApplication
           send_response
             authorized: @authorized
             projects: @projects
+            tpProjects: @tpProjectList
             clients: @clients
             timers: @todays_entries
             total_hours: @total_hours
@@ -139,8 +141,12 @@ class BackgroundApplication
     tpProjects = @tpClient.getProjects()
 
     tpProjects.success (json) =>
-        $.each json, (item) =>
-            @tpProjectList.push { Id: item.Id, Name: item.Name }
+        #@tpProjectList.push(JSON.stringify(json))
+        projects = json.Items
+        @tpProjectList = []
+        @tpProjectList.push({ Id: project.Id, Name: project.Name }) for project in projects
+        #@tpProjectList.push(project) for project in projects
+        return
 
     todays_hours.success (json) =>
       @authorized   = true

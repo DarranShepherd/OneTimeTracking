@@ -34,8 +34,11 @@ tasks_controller = ($scope) ->
     $scope.current_hours = resp.current_hours
     $scope.total_hours   = resp.total_hours
     $scope.current_task  = resp.current_task
-
+    $scope.tpProjects    = resp.tpProjects
     $scope.$apply()
+    #console.debug "Response"
+    #console.debug resp
+    #console.debug resp.tpProjects
 
   $scope.refresh = ->
     $scope.table_spinner_visible = true
@@ -50,6 +53,7 @@ tasks_controller = ($scope) ->
       $scope.prefs         = resp.preferences
       $scope.total_hours   = resp.total_hours
       $scope.current_task  = resp.current_task
+      $scope.tpProjects    = resp.tpProjects
       $scope.$apply()
 
     chrome.runtime.sendMessage { method: 'get_preferences' }, (resp) ->
