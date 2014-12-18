@@ -12,3 +12,4 @@ build/js/vendor/*
 build/css/*.css
 node_modules
 .atom-build.json
+_NCrunch*

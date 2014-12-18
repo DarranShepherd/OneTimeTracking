@@ -16,11 +16,16 @@ tasks_controller = ($scope) ->
   $scope.current_hours         = 0.0
   $scope.total_hours           = 0.0
   $scope.tasks                 = []
+  $scope.storiesForProject     = []
+  $scope.tasksForStory         = []
   $scope.form_task             =
     project: null
     task: null
     hours: null
     notes: null
+    tpproject: null
+    tpstory: null
+    tptask: null
   console.debug $scope.form_visible
 
   # Grab background application data
@@ -35,10 +40,11 @@ tasks_controller = ($scope) ->
     $scope.total_hours   = resp.total_hours
     $scope.current_task  = resp.current_task
     $scope.tpProjects    = resp.tpProjects
+    $scope.theClient     = new TargetProcess(resp.tpClient.subdomain, resp.tpClient.auth_string)
     $scope.$apply()
     #console.debug "Response"
     #console.debug resp
-    #console.debug resp.tpProjects
+    console.debug resp.projects
 
   $scope.refresh = ->
     $scope.table_spinner_visible = true
@@ -54,6 +60,7 @@ tasks_controller = ($scope) ->
       $scope.total_hours   = resp.total_hours
       $scope.current_task  = resp.current_task
       $scope.tpProjects    = resp.tpProjects
+      $scope.theClient     = new TargetProcess(resp.tpClient.subdomain, resp.tpClient.auth_string)
       $scope.$apply()
 
     chrome.runtime.sendMessage { method: 'get_preferences' }, (resp) ->
@@ -73,6 +80,17 @@ tasks_controller = ($scope) ->
       $scope.hide_form()
       $scope.refresh()
   
+  $scope.tp_project_change = ->
+    $scope.storiesForProject = []
+    $scope.tasksForStory = []
+    tpClient = $scope.theClient
+    tpStories = tpClient.getStories $scope.form_task.tpproject
+    tpStories.success (json) =>
+        stories = json.Items
+        $scope.storiesForProject.push({ Id: story.Id, Name: story.Name }) for story in stories
+        $scope.$apply()
+        return
+
   $scope.project_change = ->
     $scope.tasks = []
     current_project = _($scope.projects).find (p) -> p.id == parseInt($scope.form_task.project)
@@ -81,6 +99,17 @@ tasks_controller = ($scope) ->
     tasks.forEach (task) ->
       task.billable_text = if task.billable then 'Billable' else 'Non Billable'
       $scope.tasks.push task
+  
+  $scope.story_change = ->
+    $scope.tasksForStory = []
+    tpClient = $scope.theClient
+    tpTasks = tpClient.getTasks $scope.form_task.tpstory
+    tpTasks.success (json) =>
+        tasks = json.Items
+        $scope.tasksForStory.push({ Id: task.Id, Name: task.Name }) for task in tasks
+        console.log $scope.tasksForStory
+        $scope.$apply()
+        return    
   
   $scope.toggle_timer = (timer_id) ->
     $scope.table_spinner_visible = true
@@ -112,6 +141,7 @@ tasks_controller = ($scope) ->
   
   $scope.hide_form = ->
     $scope.form_visible = false
+    $scope.storiesForProject = []
   
   $scope.reset_form_fields = ->
     $scope.form_task =

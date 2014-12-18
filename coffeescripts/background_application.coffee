@@ -21,6 +21,7 @@ class BackgroundApplication
               authorized: @authorized
               projects: @projects
               tpProjects: @tpProjectList
+              tpClient: @tpClient
               clients: @clients
               timers: @todays_entries
               total_hours: @total_hours
@@ -33,6 +34,7 @@ class BackgroundApplication
             authorized: @authorized
             projects: @projects
             tpProjects: @tpProjectList
+            tpClient: @tpClient
             clients: @clients
             timers: @todays_entries
             total_hours: @total_hours
@@ -40,6 +42,8 @@ class BackgroundApplication
             current_task: @current_task
             harvest_url: if @client.subdomain then @client.full_url else null
             preferences: @preferences
+        get_tp_stories: (id) =>
+            @tp_get_stories id
         get_preferences: =>
           @get_preferences (prefs) => send_response preferences: prefs
         add_timer: =>
@@ -57,6 +61,8 @@ class BackgroundApplication
         reload_app: =>
           send_response reloading: true
           window.location.reload true
+        get_targetProcess_client: =>
+            send_response @tpClient
 
       if methods.hasOwnProperty request.method
         console.debug "Received message from popup: %s", request.method
@@ -132,6 +138,13 @@ class BackgroundApplication
 
     chrome.browserAction.setBadgeBackgroundColor color: badge_color
     chrome.browserAction.setBadgeText text: badge_text
+  
+  tp_get_stories: (tpProjectId) =>
+    tpStories = @tpClient.getStories(tpProjectId)
+    tpStories.success (json) =>
+        console.log 'Stories'
+        console.log json
+        return
   
   refresh_hours: (callback = $.noop) =>
     console.debug 'refreshing hours'
