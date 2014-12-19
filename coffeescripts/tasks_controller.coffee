@@ -81,6 +81,7 @@ tasks_controller = ($scope) ->
       $scope.refresh()
   
   $scope.tp_project_change = ->
+    $scope.form_spinner_visible = true
     $scope.storiesForProject = []
     $scope.tasksForStory = []
     tpClient = $scope.theClient
@@ -88,6 +89,7 @@ tasks_controller = ($scope) ->
     tpStories.success (json) =>
         stories = json.Items
         $scope.storiesForProject.push({ Id: story.Id, Name: story.Name }) for story in stories
+        $scope.form_spinner_visible = false
         $scope.$apply()
         return
 
@@ -101,6 +103,7 @@ tasks_controller = ($scope) ->
       $scope.tasks.push task
   
   $scope.story_change = ->
+    $scope.form_spinner_visible = true
     $scope.tasksForStory = []
     tpClient = $scope.theClient
     tpTasks = tpClient.getTasks $scope.form_task.tpstory
@@ -108,6 +111,7 @@ tasks_controller = ($scope) ->
         tasks = json.Items
         $scope.tasksForStory.push({ Id: task.Id, Name: task.Name }) for task in tasks
         console.log $scope.tasksForStory
+        $scope.form_spinner_visible = false
         $scope.$apply()
         return    
   
