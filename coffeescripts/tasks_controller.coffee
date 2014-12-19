@@ -26,6 +26,7 @@ tasks_controller = ($scope) ->
     tpproject: null
     tpstory: null
     tptask: null
+    tpremaining: null
   console.debug $scope.form_visible
 
   # Grab background application data
@@ -75,10 +76,21 @@ tasks_controller = ($scope) ->
       task_id: $scope.form_task.task
       hours: $scope.form_task.hours
       notes: $scope.form_task.notes
-    chrome.runtime.sendMessage { method: 'add_timer', active_timer_id: $scope.active_timer_id, task: task }, (resp) ->
-      $scope.form_spinner_visible = false
-      $scope.hide_form()
-      $scope.refresh()
+      tpProject: $scope.form_task.tpproject
+      tpStory: $scope.form_task.tpstory
+      tpTask: $scope.form_task.tptask
+      tpSpent: $scope.form_task.hours,
+      tpRemaining: $scope.form_task.tpremaining
+    console.log task
+    chrome.runtime.sendMessage 
+        method: 'add_timer'
+        active_timer_id: $scope.active_timer_id
+        task: task
+        (resp) ->
+            $scope.form_spinner_visible = false
+            $scope.hide_form()
+            $scope.refresh()
+    return
   
   $scope.tp_project_change = ->
     $scope.form_spinner_visible = true
@@ -86,6 +98,8 @@ tasks_controller = ($scope) ->
     $scope.tasksForStory = []
     tpClient = $scope.theClient
     tpStories = tpClient.getStories $scope.form_task.tpproject
+    projectTitle = $('#tp-project-select option:selected').text()
+    $('#task-notes').val(projectTitle)
     tpStories.success (json) =>
         stories = json.Items
         $scope.storiesForProject.push({ Id: story.Id, Name: story.Name }) for story in stories
@@ -97,7 +111,7 @@ tasks_controller = ($scope) ->
     $scope.tasks = []
     current_project = _($scope.projects).find (p) -> p.id == parseInt($scope.form_task.project)
     tasks = current_project.tasks
-
+    
     tasks.forEach (task) ->
       task.billable_text = if task.billable then 'Billable' else 'Non Billable'
       $scope.tasks.push task
@@ -107,13 +121,24 @@ tasks_controller = ($scope) ->
     $scope.tasksForStory = []
     tpClient = $scope.theClient
     tpTasks = tpClient.getTasks $scope.form_task.tpstory
+    storyTitle = $('#tp-story-select option:selected').text()
+    currentText = $('#task-notes').val()
+    currentText = currentText.concat(' - ', storyTitle)
+    $('#task-notes').val(currentText)
     tpTasks.success (json) =>
         tasks = json.Items
         $scope.tasksForStory.push({ Id: task.Id, Name: task.Name }) for task in tasks
         console.log $scope.tasksForStory
         $scope.form_spinner_visible = false
         $scope.$apply()
-        return    
+        return
+  
+  $scope.task_change = ->
+      taskTitle = $('#tp-task-select option:selected').text()
+      currentText = $('#task-notes').val()
+      currentText = currentText.concat(' - ', taskTitle)
+      $('#task-notes').val(currentText)
+      return
   
   $scope.toggle_timer = (timer_id) ->
     $scope.table_spinner_visible = true
@@ -126,6 +151,10 @@ tasks_controller = ($scope) ->
     chrome.runtime.sendMessage { method: 'delete_timer', timer_id: timer_id }, (resp) ->
       $scope.table_spinner_visible = false
       $scope.refresh()
+  
+  $scope.stop_timer = (timer_id) =>
+    $scope.table_spinner_visible = true
+    $scope.refresh()
   
   $scope.show_form = (timer_id=0) ->
     $scope.active_timer_id = timer_id

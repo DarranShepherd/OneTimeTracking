@@ -47,6 +47,8 @@ class BackgroundApplication
         get_preferences: =>
           @get_preferences (prefs) => send_response preferences: prefs
         add_timer: =>
+          @tpClient.postTime request.task.notes, request.task.hours, request.task.tpSpent, request.task.tpSpent, '19-Dec-2014', request.task.tpTask
+          return
           if request.active_timer_id != 0
             result = @client.update_entry request.active_timer_id, request.task
           else
