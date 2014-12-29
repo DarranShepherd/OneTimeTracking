@@ -234,7 +234,7 @@ ul.toolbar {
     width: 200px;
   }
 
-  input[type="submit"] {
+  input[type="submit"], input[type="button"] {
     @include border-radius(4px);
     color: white;
     cursor: pointer;

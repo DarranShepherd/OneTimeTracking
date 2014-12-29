@@ -70,8 +70,6 @@ tasks_controller = ($scope) ->
       $scope.$apply()
   
   $scope.add_timer = ->
-    $('#task-notes').trigger('change')
-    #maybe need to scope digest here
     $scope.form_spinner_visible = true
     task =
       project_id: $scope.form_task.project
