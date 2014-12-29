@@ -70,6 +70,8 @@ tasks_controller = ($scope) ->
       $scope.$apply()
   
   $scope.add_timer = ->
+    $('#task-notes').trigger('change')
+    #maybe need to scope digest here
     $scope.form_spinner_visible = true
     task =
       project_id: $scope.form_task.project
@@ -81,7 +83,6 @@ tasks_controller = ($scope) ->
       tpTask: $scope.form_task.tptask
       tpSpent: $scope.form_task.hours,
       tpRemaining: $scope.form_task.tpremaining
-    console.log task
     chrome.runtime.sendMessage 
         method: 'add_timer'
         active_timer_id: $scope.active_timer_id
@@ -98,8 +99,8 @@ tasks_controller = ($scope) ->
     $scope.tasksForStory = []
     tpClient = $scope.theClient
     tpStories = tpClient.getStories $scope.form_task.tpproject
-    projectTitle = $('#tp-project-select option:selected').text()
-    $('#task-notes').val(projectTitle)
+    # projectTitle = $('#tp-project-select option:selected').val()
+    $('#task-notes').val('#' + $scope.form_task.tpproject)
     tpStories.success (json) =>
         stories = json.Items
         $scope.storiesForProject.push({ Id: story.Id, Name: story.Name }) for story in stories
@@ -117,26 +118,27 @@ tasks_controller = ($scope) ->
       $scope.tasks.push task
   
   $scope.story_change = ->
+    currentText = $('#task-notes').val()
+    currentText = currentText.concat(' - #', $scope.form_task.tpstory)
+    $('#task-notes').val(currentText)
     $scope.form_spinner_visible = true
     $scope.tasksForStory = []
     tpClient = $scope.theClient
     tpTasks = tpClient.getTasks $scope.form_task.tpstory
-    storyTitle = $('#tp-story-select option:selected').text()
-    currentText = $('#task-notes').val()
-    currentText = currentText.concat(' - ', storyTitle)
-    $('#task-notes').val(currentText)
+    #storyTitle = $('#tp-story-select option:selected').text()
+    #currentText = currentText.concat(' - ', storyTitle)
     tpTasks.success (json) =>
         tasks = json.Items
         $scope.tasksForStory.push({ Id: task.Id, Name: task.Name }) for task in tasks
-        console.log $scope.tasksForStory
         $scope.form_spinner_visible = false
         $scope.$apply()
         return
   
   $scope.task_change = ->
-      taskTitle = $('#tp-task-select option:selected').text()
+      #taskTitle = $('#tp-task-select option:selected').text()
       currentText = $('#task-notes').val()
-      currentText = currentText.concat(' - ', taskTitle)
+      #currentText = currentText.concat(' - ', taskTitle)
+      currentText = currentText.concat(' - #', $scope.form_task.tptask)
       $('#task-notes').val(currentText)
       return
   
