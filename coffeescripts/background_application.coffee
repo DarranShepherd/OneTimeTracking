@@ -13,7 +13,13 @@ class BackgroundApplication
     console.debug "Registering asynchronous message listeners"
 
     chrome.runtime.onMessage.addListener (request, sender, send_response) =>
-      send_json_response = (json) => send_response json
+      send_json_response = (json) => 
+          console.log 'Logging in BGAPP'
+          # console.log @todays_entry_tp_map
+          # json = $.extend json, { tpMap: @todays_entry_tp_map }
+          # json.tpMap = @todays_entry_tp_map
+          console.log json
+          send_response json
       methods =
         refresh_hours: =>
           @refresh_hours =>
@@ -29,6 +35,7 @@ class BackgroundApplication
               current_task: @current_task
               harvest_url: if @client.subdomain then @client.full_url else null
               preferences: @preferences
+              tpMap: @todays_entry_tp_map
         get_entries: =>
           send_response
             authorized: @authorized
@@ -42,18 +49,32 @@ class BackgroundApplication
             current_task: @current_task
             harvest_url: if @client.subdomain then @client.full_url else null
             preferences: @preferences
+            tpMap: @todays_entry_tp_map
         get_tp_stories: (id) =>
             @tp_get_stories id
         get_preferences: =>
           @get_preferences (prefs) => send_response preferences: prefs
         add_timer: =>
-          @tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, '26-Dec-2014', request.task.tpTask
-          return
+          @tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
           if request.active_timer_id != 0
             result = @client.update_entry request.active_timer_id, request.task
           else
-            result = @client.add_entry request.task
-          result.success send_json_response
+            result = @client.add_entry request.task, @todays_entry_tp_map, send_json_response
+          return
+          # this is now moved to client's add entry function
+          ###
+          result.success (resultData, textStatus, jqXhr) ->
+            # console.log(@todays_entry_tp_map)
+            jsonData = $.extend(resultData, request.task)
+            # mapEntry = @todays_entry_tp_map.find (item) -> item.id == resultData.
+            try
+                @todays_entry_tp_map.push ({ a: '10' })
+                console.log todays_entry_tp_map
+            catch e
+                console.log(e)
+            send_json_response resultData
+            return
+          ###
         toggle_timer: =>
           result = @client.toggle_timer request.timer_id
           result.complete send_json_response
@@ -90,6 +111,7 @@ class BackgroundApplication
     @tpProjectList         = []
     @preferences           = {}
     @timer_running         = false
+    @todays_entry_tp_map   = []
 
     chrome.browserAction.setTitle title: "Hayfever for Harvest"
     register_message_listeners.call this
@@ -156,11 +178,9 @@ class BackgroundApplication
     tpProjects = @tpClient.getProjects()
 
     tpProjects.success (json) =>
-        #@tpProjectList.push(JSON.stringify(json))
         projects = json.Items
         @tpProjectList = []
         @tpProjectList.push({ Id: project.Id, Name: project.Name }) for project in projects
-        #@tpProjectList.push(project) for project in projects
         return
 
     todays_hours.success (json) =>

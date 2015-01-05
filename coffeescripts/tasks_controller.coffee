@@ -18,6 +18,9 @@ tasks_controller = ($scope) ->
   $scope.tasks                 = []
   $scope.storiesForProject     = []
   $scope.tasksForStory         = []
+  $scope.tpMap                 = []
+  $scope.stoppingTimer         = false
+  $scope.remainingRequired     = false
   $scope.form_task             =
     project: null
     task: null
@@ -27,7 +30,7 @@ tasks_controller = ($scope) ->
     tpstory: null
     tptask: null
     tpremaining: null
-  console.debug $scope.form_visible
+  # console.debug $scope.form_visible
 
   # Grab background application data
   chrome.runtime.sendMessage { method: 'get_entries' }, (resp) ->
@@ -42,10 +45,11 @@ tasks_controller = ($scope) ->
     $scope.current_task  = resp.current_task
     $scope.tpProjects    = resp.tpProjects
     $scope.theClient     = new TargetProcess(resp.tpClient.subdomain, resp.tpClient.auth_string)
+    $scope.tpMap         = resp.tpMap
     $scope.$apply()
-    #console.debug "Response"
-    #console.debug resp
-    console.debug resp.projects
+    # console.debug "Response"
+    # console.debug resp
+    # console.debug resp.projects
 
   $scope.refresh = ->
     $scope.table_spinner_visible = true
@@ -62,6 +66,7 @@ tasks_controller = ($scope) ->
       $scope.current_task  = resp.current_task
       $scope.tpProjects    = resp.tpProjects
       $scope.theClient     = new TargetProcess(resp.tpClient.subdomain, resp.tpClient.auth_string)
+      $scope.tpMap         = resp.tpMap
       $scope.$apply()
 
     chrome.runtime.sendMessage { method: 'get_preferences' }, (resp) ->
@@ -70,22 +75,27 @@ tasks_controller = ($scope) ->
       $scope.$apply()
   
   $scope.add_timer = ->
+    $scope.form_task.notes = $('#task-notes').val()
     $scope.form_spinner_visible = true
     task =
       project_id: $scope.form_task.project
       task_id: $scope.form_task.task
       hours: $scope.form_task.hours
       notes: $scope.form_task.notes
-      tpProject: $scope.form_task.tpproject
-      tpStory: $scope.form_task.tpstory
-      tpTask: $scope.form_task.tptask
-      tpSpent: $scope.form_task.hours,
+      tpProject: $scope.form_task.tpproject ? null
+      tpStory: $scope.form_task.tpstory ? null
+      tpTask: $scope.form_task.tptask ? null
+      tpSpent: $scope.form_task.hours
       tpRemaining: $scope.form_task.tpremaining
+      entryDate: (new Date()).toJSON()
     chrome.runtime.sendMessage 
         method: 'add_timer'
         active_timer_id: $scope.active_timer_id
         task: task
         (resp) ->
+            console.log 'Resp.tpMap is'
+            console.log resp.tpMap
+            $scope.tpMap = resp.tpMap
             $scope.form_spinner_visible = false
             $scope.hide_form()
             $scope.refresh()
@@ -153,28 +163,82 @@ tasks_controller = ($scope) ->
       $scope.refresh()
   
   $scope.stop_timer = (timer_id) =>
-    $scope.table_spinner_visible = true
-    $scope.refresh()
+    $scope.stoppingTimer = true
+    $scope.show_form(timer_id)
+    #$scope.table_spinner_visible = true
+    #$scope.refresh()
+  
+  $scope.stop_and_log = (timer_id) =>
+    # need to stop the timer in harvest
+    # need to log the entry in tp
+    # there is duplication here but I think I need to also set certain things here such as removing stop, pause and potentially notes button
+    
+    # first check if time rmaining is set
+    return if $scope.active_timer_id is 0
+
+    if $scope.form_task.tpremaining is `undefined` or $scope.form_task.tpremaining is null  
+        $scope.remainingRequired = true
+        return
+    else 
+        $scope.remainingRequired = false
+
+    $scope.form_task.notes = $('#task-notes').val()
+    $scope.form_spinner_visible = true
+    task =
+      project_id: $scope.form_task.project
+      task_id: $scope.form_task.task
+      hours: $scope.form_task.hours
+      notes: $scope.form_task.notes
+      tpProject: $scope.form_task.tpproject ? null
+      tpStory: $scope.form_task.tpstory ? null
+      tpTask: $scope.form_task.tptask ? null
+      tpSpent: $scope.form_task.hours
+      tpRemaining: $scope.form_task.tpremaining
+      entryDate: (new Date()).toJSON()
+    chrome.runtime.sendMessage 
+        method: 'add_timer'
+        active_timer_id: $scope.active_timer_id
+        task: task
+        (resp) ->
+            console.log 'Resp.tpMap is'
+            console.log resp.tpMap
+            $scope.tpMap = resp.tpMap
+            $scope.form_spinner_visible = false
+            $scope.hide_form()
+            $scope.refresh()
+    return    
   
   $scope.show_form = (timer_id=0) ->
     $scope.active_timer_id = timer_id
     $scope.reset_form_fields()
-
+    
     unless $scope.active_timer_id is 0
       timer = _($scope.timers).find (item) -> item.id == $scope.active_timer_id
 
       if timer
+        # console.log timer
         $scope.form_task.project = parseInt timer.project_id, 10
         $scope.form_task.task = parseInt timer.task_id, 10
         $scope.form_task.hours = timer.hours
         $scope.form_task.notes = timer.notes
         $scope.project_change()
+
+        # Now show the tpThings
+        mapEntry = _($scope.tpMap).find (item) -> item.timerId == timer_id
+        if mapEntry and mapEntry.tpProject?
+            $scope.form_task.tpproject = mapEntry.tpProject
+            $scope.form_task.tpstory = mapEntry.tpStory
+            $scope.form_task.tptask = mapEntry.tpTask
+            # trigger change
+            $scope.tp_project_change()
+            $scope.story_change()
     
     $scope.form_visible = true
   
   $scope.hide_form = ->
     $scope.form_visible = false
     $scope.storiesForProject = []
+    $scope.stoppingTimer == false if $scope.stoppingTimer is true
   
   $scope.reset_form_fields = ->
     $scope.form_task =

@@ -30,6 +30,7 @@ class @TPClient.TargetProcess
     $.ajax(tasks_url, ajax_opts)
     
   postTime: (description, spent, remain, spentDate, id, ajax_opts = {}) ->
+    return if not spent?
     time_url = @full_url + '/Times/'
     time_entry = 
         Description: description

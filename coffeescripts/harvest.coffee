@@ -117,9 +117,28 @@ class Harvest
   @param {Boolean} async
   @returns {jqXHR}
   ###
-  add_entry: (props, ajax_opts = {}) ->
+  add_entry: (props, tpMap, send_json_response, ajax_opts = {}) ->
     url       = build_url.call this, 'daily', 'add'
-    ajax_opts = build_ajax_options.call this, $.extend(ajax_opts, type: 'POST', data: props)
+    console.log 'Adding Entry'
+    console.log props
+    successFunction = (resultData, textStatus, jqXhr) ->
+        console.log resultData
+        tpMap.push mapEntry = 
+            timerId: resultData.id
+            tpProject: props.tpProject
+            tpStory: props.tpStory
+            tpTask: props.tpTask
+        resultData.tpMap = tpMap
+        send_json_response resultData
+        return
+    # commented as global ajax options were getting modified
+    #ajax_opts = build_ajax_options.call this, $.extend(ajax_opts, type: 'POST', data: props, success: successFunction)
+    postOptions =
+        type: 'POST'
+        data: props
+        success: successFunction
+    ajax_opts = $.extend ajax_opts, @ajax_defaults
+    ajax_opts = $.extend ajax_opts, postOptions
     $.ajax url, ajax_opts
   
   ###
