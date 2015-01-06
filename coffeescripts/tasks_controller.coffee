@@ -196,8 +196,8 @@ tasks_controller = ($scope) ->
       tpRemaining: $scope.form_task.tpremaining
       entryDate: (new Date()).toJSON()
     chrome.runtime.sendMessage 
-        method: 'add_timer'
-        active_timer_id: $scope.active_timer_id
+        method: 'stop_timer'
+        timer_id: $scope.active_timer_id
         task: task
         (resp) ->
             console.log 'Resp.tpMap is'

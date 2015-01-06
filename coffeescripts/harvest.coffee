@@ -119,8 +119,8 @@ class Harvest
   ###
   add_entry: (props, tpMap, send_json_response, ajax_opts = {}) ->
     url       = build_url.call this, 'daily', 'add'
-    console.log 'Adding Entry'
-    console.log props
+    #console.log 'Adding Entry'
+    #console.log props
     successFunction = (resultData, textStatus, jqXhr) ->
         console.log resultData
         tpMap.push mapEntry = 
@@ -139,6 +139,11 @@ class Harvest
         success: successFunction
     ajax_opts = $.extend ajax_opts, @ajax_defaults
     ajax_opts = $.extend ajax_opts, postOptions
+    $.ajax url, ajax_opts
+  
+  stop_timer: (eid, send_json_response, ajax_opts = {}) ->
+    url       = build_url.call this, 'daily', 'timer', String(eid)
+    ajax_opts = build_ajax_options.call this, ajax_opts
     $.ajax url, ajax_opts
   
   ###
@@ -161,9 +166,24 @@ class Harvest
   @param {Boolean} async
   @returns {jqXHR}
   ###
-  update_entry: (eid, props, ajax_opts = {}) ->
+  update_entry: (eid, props, tpMap, send_json_response, ajax_opts = {}) ->
     url       = build_url.call this, 'daily', 'update', String(eid)
-    ajax_opts = build_ajax_options.call this, $.extend(ajax_opts, type: 'POST', data: props)
+    successFunction = (resultData, textStatus, jqXhr) ->
+        tpMap.push mapEntry = 
+            timerId: resultData.id
+            tpProject: props.tpProject
+            tpStory: props.tpStory
+            tpTask: props.tpTask
+        resultData.tpMap = tpMap
+        send_json_response resultData
+        return
+    # ajax_opts = build_ajax_options.call this, $.extend(ajax_opts, type: 'POST', data: props)
+    postOptions =
+        type: 'POST'
+        data: props
+        success: successFunction
+    ajax_opts = $.extend ajax_opts, @ajax_defaults
+    ajax_opts = $.extend ajax_opts, postOptions
     $.ajax url, ajax_opts
 
 window.Harvest = Harvest

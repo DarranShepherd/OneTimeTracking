@@ -57,7 +57,7 @@ class BackgroundApplication
         add_timer: =>
           @tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
           if request.active_timer_id != 0
-            result = @client.update_entry request.active_timer_id, request.task
+            result = @client.update_entry request.active_timer_id, request.task, @todays_entry_tp_map, send_json_response
           else
             result = @client.add_entry request.task, @todays_entry_tp_map, send_json_response
           return
@@ -75,6 +75,10 @@ class BackgroundApplication
             send_json_response resultData
             return
           ###
+        stop_timer: =>
+          result = @client.stop_timer request.timer_id, send_json_response
+          return
+          # result.complete send_json_response
         toggle_timer: =>
           result = @client.toggle_timer request.timer_id
           result.complete send_json_response
