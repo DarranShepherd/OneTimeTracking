@@ -1,0 +1,38 @@
+{
+    "manifest_version": 2,
+    "name": "HayfeverExt for Harvest",
+    "short_name": "HayfeverExt",
+    "version": "0.3.7",
+    "description": "A simple Harvest + TP timesheet manager for Google Chrome",
+    "homepage_url": "https://github.com/mikedamage/hayfever-chrome",
+    "minimum_chrome_version": "22",
+    "background": {
+        "scripts": [
+            "js/vendor/sugar/release/sugar.min.js",
+            "js/prototype-extensions.js",
+            "js/vendor/underscore/underscore-min.js",
+            "js/vendor/jquery/jquery.min.js",
+            "js/jquery.hexcolors.js",
+            "js/harvest.js",
+            "js/background_application.js",
+            "js/background.js",
+            "js/google-analytics.js",
+            "js/TargetProcess.js"
+        ]
+    },
+    "browser_action": {
+        "default_icon": "img/icon.png",
+        "default_popup": "popup.html"
+    },
+    "icons": {
+        "48": "img/app_icon_48.png",
+        "64": "img/app_icon_64.png",
+        "128": "img/app_icon_128.png"
+    },
+    "options_page": "options.html",
+    "permissions": [
+        "storage",
+        "https://*.harvestapp.com/",
+        "https://*.tpondemand.com/"
+    ]
+}

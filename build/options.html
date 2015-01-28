@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="hayfeverOptions" ng-csp>
+<head>
+    <meta charset="UTF-8" />
+    <title>HayfeverExt for Chrome: Options</title>
+
+    <link rel="stylesheet" href="js/vendor/angular/angular-csp.css">
+    <link rel="stylesheet" href="css/options.css">
+
+    <script src="js/prototype-extensions.js"></script>
+    <script src="js/vendor/underscore/underscore-min.js"></script>
+    <script src="js/vendor/jquery/jquery.min.js"></script>
+    <script src="js/vendor/angular/angular.min.js"></script>
+    <script src="js/vendor/angular-animate/angular-animate.min.js"></script>
+    <script src="js/options_controller.js"></script>
+</head>
+<body ng-controller="OptionsController">
+    <div class="container">
+        <header id="header">
+            <h1>Hayfever Options</h1>
+            <span ng-show="debug_mode">
+                <input type="checkbox" ng-model="options_saved"> Show banner?
+            </span>
+        </header>
+
+        <div id="status" ng-show="options_saved">Options successfully saved!</div>
+
+        <form action="" ng-submit="save_options()">
+            <div class="input-group" id="authentication">
+                <h2>Harvest Authentication</h2>
+                <p>
+                    <label for="harvest-subdomain">Harvest Subdomain</label>
+                    <input type="text" ng-model="subdomain" placeholder="Enter Subdomain" name="harvest-subdomain" required>
+                    <span class="hint">Just the beginning (i.e. "yourbusiness" if your Harvest subdomain is http://yourbusiness.harvestapp.com)</span>
+                </p>
+                <p>
+                    <label for="harvest-username">Harvest Username</label>
+                    <input type="email" ng-model="username" placeholder="Enter Email" name="harvest-username" required>
+                    <span class="hint">Usually your email address</span>
+                </p>
+                <p>
+                    <label for="harvest-password">Harvest Password</label>
+                    <input type="password" placeholder="{{password_placeholder}}" ng-model="password" name="harvest-password">
+                </p>
+            </div>
+            <div class="input-group" id="authentication">
+                <h2>TP Authentication</h2>
+                <p>
+                    <label for="tp_subdomain">TP Subdomain</label>
+                    <input type="text" ng-model="tpsubdomain" placeholder="Enter Subdomain" name="tp_subdomain" required>
+                    <span class="hint">Just the beginning (i.e. "yourbusiness" if your TP subdomain is http://yourbusiness.tpondemand.com)</span>
+                </p>
+                <p>
+                    <label for="tp_username">TP Username</label>
+                    <input type="email" ng-model="tpusername" placeholder="Enter Email" name="tp_username" required>
+                    <span class="hint">Usually your email address</span>
+                </p>
+                <p>
+                    <label for="tp-password">Harvest Password</label>
+                    <input type="password" placeholder="{{tp_password_placeholder}}" ng-model="tppassword" name="tp-password">
+                </p>
+            </div>
+            <div class="input-group" id="plugin-prefs">
+                <h2>Plugin Preferences</h2>
+                <p> 
+                    <input type="checkbox" name="enable_analytics" id="enable-analytics" ng-model="preferences.enable_analytics" />
+                    <label for="enable-analytics">Collect anonymous usage statistics?</label>
+                    <span class="hint">Help us improve Hayfever by allowing us to collect anonymous usage info. Enabling this option injects a Google Analytics snippet into the extension's popup page.</span>
+                </p>
+
+                <p>
+                    <input type="checkbox" name="badge_blink" id="badge-blink" ng-model="preferences.badge_blink" />
+                    <label for="badge-blink">Blink Badge on Active Timer?</label>
+                    <span class="hint">If checked, the hours badge will blink when a timer is running.</span>
+                </p>
+
+                <p>
+                    <label for="badge-display">Badge displays</label>
+                    <select name="badge_display" id="badge-display" ng-model="preferences.badge_display">
+                        <option value="total">Total Hours Today</option>
+                        <option value="current">Active Task Hours</option>
+                        <option value="nothing">Nothing (disable badge)</option>
+                    </select>
+                </p>
+
+                <p>
+                    <label for="badge-format">Badge Format</label>
+                    <select name="badge_format" id="badge-format" ng-model="preferences.badge_format">
+                        <option value="decimal">Decimal (i.e. 1.50)</option>
+                        <option value="clock">Clock (i.e. 1:30)</option>
+                    </select>
+                </p>
+
+                <p>
+                    <label for="badge-color">Badge Color</label>
+                    <input type="color" id="badge-color" ng-model="preferences.badge_color">
+                </p>
+            </div>
+
+            <div class="input-group" id="timesheet-prefs">
+                <h2>Timesheet Preferences</h2>
+
+                <p>
+                    <input type="checkbox" id="show-task-notes" name="show_task_notes" ng-model="preferences.show_task_notes" />
+                    <label for="show-task-notes">Show task notes in timesheet?</label>
+                </p>
+            </div>
+            <button id="save-settings">Save Settings &raquo;</button>
+        </form>
+    </div>
+</body>
+</html>

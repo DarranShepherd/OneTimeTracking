@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="hayfeverApp" ng-csp>
+<head>
+    <meta charset="UTF-8" />
+
+    <link rel="stylesheet" href="js/vendor/angular/angular-csp.css">
+    <link rel="stylesheet" href="css/font-awesome.css">
+    <link rel="stylesheet" href="css/popup.css">
+
+    <script src="js/prototype-extensions.js"></script>
+    <script src="js/vendor/underscore/underscore-min.js"></script>
+    <script src="js/vendor/jquery/jquery.min.js"></script>
+    <script src="js/vendor/angular/angular.min.js"></script>
+    <script src="js/vendor/angular-animate/angular-animate.min.js"></script>
+    <script src="js/vendor/spin.js/spin.js"></script>
+    <script src="js/vendor/spin.js/jquery.spin.js"></script>
+    <script src="js/init-spinners.js"></script>
+    <script src="js/TargetProcess.js"></script>
+    <script src="js/tasks_controller.js"></script>
+    <script src="js/google-analytics.js"></script>
+</head>
+<body ng-controller="TasksController">
+    <table cellspacing="0" width="340" id="timesheet">
+        <thead>
+            <tr>
+                <th class="left" width="60%">Task</th>
+                <th>Time</th>
+                <th class="right">Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="timer in timers"
+                id="entry-{{timer.id}}"
+                ng-class="{entry: true, running: timer.running, even: ($index % 2 == 0), odd: ($index % 2 != 0)}"
+                ng-dblclick="toggle_timer(timer.id)">
+                <td class="entry-name">
+                    <strong>{{timer.code ? '[' + timer.code + ']' : ''}} {{timer.client}}</strong> {{timer.project}} ({{timer.task}})
+                    <div class="notes" ng-if="prefs.show_task_notes">
+                        <strong>Notes:</strong> <em>{{timer.notes}}</em>
+                    </div>
+                </td>
+                <td class="entry-hours" width="50" align="center">
+                    {{timer.hours}}
+                </td>
+                <td class="entry-toggle" align="center">
+                    <a href="#" class="stop-timer" ng-click="stop_timer(timer.id)">
+                        <span class="fa fa-stop"></span>
+                    </a>
+                    <a href="#" class="toggle-timer" ng-click="toggle_timer(timer.id)">
+                        <span class="fa fa-play"></span>
+                    </a>
+                    <a href="#" ng-click="show_form(timer.id)">
+                        <span class="fa fa-pencil-square-o"></span>
+                    </a>
+                    <a href="#" ng-click="delete_timer(timer.id)">
+                        <span class="fa fa-minus-circle"></span>
+                    </a>
+                </td>
+            </tr>
+            <tr class="noentries" ng-if="authorized && timers.length == 0" ng-dblclick="show_form()">
+                <td colspan="3" align="center">
+                    <span class="fa fa-calendar"></span>
+                    <em>No Entries Today</em>
+                </td>
+            </tr>
+            <tr class="configure" ng-if="!authorized">
+                <td colspan="3" align="center">
+                    <span class="fa fa-cog"></span>
+                    <em>Please visit the <a href="options.html" target="_blank">Options Page</a> and sign in to Harvest.</em>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" align="left" id="actions">
+                    <a href="#" ng-click="show_form()"><span class="fa fa-plus"></span></a>
+                    <a href="#" ng-click="refresh()"><span class="fa fa-refresh"></span></a>
+                    <a href="options.html" target="_blank"><span class="fa fa-cog"></span></a>
+                    <div id="table-spinner" ng-show="table_spinner_visible"></div>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div id="stats">
+        <div class="stat-clock" id="total-hours-stat">
+            <p id="total-hours-time">{{total_hours | clockTime}}&nbsp;<span class="fa fa-clock-o"></span></p>
+            <span class="stat-caption">Total Hours Today</span>
+        </div>
+        <div class="stat-clock" id="current-hours-stat">
+            <p id="current-hours-time">{{current_hours | clockTime}}&nbsp;<span class="fa fa-clock-o"></span></p>
+            <span class="stat-caption">Current Task Hours</span>
+        </div>
+        <div class="clear">&nbsp;</div>
+    </div>
+
+    <ul class="toolbar" ng-if="harvest_url">
+        <li>
+            <span class="fa fa-arrow-circle-o-left"></span>
+            <a href="{{harvest_url}}" id="harvest-link" target="_blank">Visit Harvest App</a>
+        </li>
+        <li ng-if="debug_mode">
+            <a href="#" ng-click="toggle_spinners()">Toggle Spinners</a>
+        </li>
+    </ul>
+
+    <div id="form-overlay" ng-show="form_visible">
+        <form id="entry-form" ng-submit="add_timer()">
+            <p>
+                <a class="cancel" href="#" ng-click="hide_form()">
+                    <span class="fa fa-times-circle"></span>
+                </a>
+            </p>
+            <br/>
+            <fieldset>
+                <legend>Target Process</legend>
+                <p>
+                    <label for="tp-project-select">Project</label>
+                    <select id="tp-project-select"
+                            name="client"
+                            ng-model="form_task.tpproject"
+                            ng-change="tp_project_change()"
+                            ng-options="p.Id as p.Name for p in tpProjects">
+                        <option value="">- Select a Project -</option>
+                    </select>
+                </p>
+                <p>
+                    <label for="tp-story-select">Story</label>
+                    <select id="tp-story-select"
+                            name="story"
+                            ng-model="form_task.tpstory"
+                            ng-change="story_change()"
+                            ng-options="s.Id as s.Name for s in storiesForProject">
+                        <option value="">- Select a Story -</option>
+                    </select>
+                </p>
+                <p>
+                    <label for="tp-task-select">Tasks</label>
+                    <select id="tp-task-select"
+                            name="tpTasks"
+                            ng-model="form_task.tptask"
+                            ng-change="task_change()"
+                            ng-options="t.Id as t.Name for t in tasksForStory">
+                        <option value="">- Select a Task -</option>
+                    </select>
+                </p>
+            </fieldset>
+
+            <fieldset>
+                <legend>Harvest</legend>
+                <p>
+                    <label for="client-select">Project</label>
+                    <select id="client-select"
+                            name="client"
+                            ng-model="form_task.project"
+                            ng-change="project_change()"
+                            ng-options="p.id as (p.code ? '[' + p.code + '] ' + p.name : p.name ) group by p.client for p in projects"
+                            required>
+                        <option value="">- Select a Project -</option>
+                    </select>
+                </p>
+
+                <p>
+                    <label for="task-select">Task</label>
+                    <select id="task-select"
+                            name="task"
+                            ng-model="form_task.task"
+                            ng-options="t.id as t.name group by t.billable_text for t in tasks"
+                            required>
+                        <option value="">- Select Task -</option>
+                    </select>
+                </p>
+            </fieldset>
+
+            
+            <p>
+                <label for="task-hours">Hours</label>
+                <input type="text" id="task-hours" value="" name="task_hours" placeholder="0" ng-model="form_task.hours" size="4" />
+            </p>
+            <p>
+                <label for="task-hours-remaining">Remaining</label>
+                <input type="text" id="task-hours-remaining" value="" name="task-hours-remaining" placeholder="0" ng-model="form_task.tpremaining" size="4"  />
+            </p>
+            <div ng-show="remainingRequired">
+                <label>&nbsp;</label>
+                <span>
+                    Remaining time is required
+                </span>
+            </div>
+            <p>
+                <label for="task-notes">Notes</label>
+                <textarea id="task-notes" name="task-notes" ng-model="form_task.notes"></textarea>
+            </p>
+            <input type="hidden" value="{{active_timer_id}}" ng-model="active_timer_id" name="timer_id">
+            <input type="submit" value="Save" ng-hide="stoppingTimer">
+            <input type="button" value="Log" ng-click="stop_and_log()" ng-show="stoppingTimer">
+            <input type="button" value="Cancel" ng-click="hide_form()">
+            <div id="form-spinner" ng-show="form_spinner_visible"></div>
+        </form>
+    </div>
+</body>
+</html>
