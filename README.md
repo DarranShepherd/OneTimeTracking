@@ -1,10 +1,6 @@
-# Hayfever for Harvest
+# One Time Tracking
 
-_A Google Chrome plugin for managing Harvest timers_
-
-Copyright &copy; 2010, Mike Green (mike.is.green AT gmail DOT com)
-
-[![Donate to the development of Hayfever](http://pledgie.com/campaigns/14742.png?skin_name=chrome)][1]
+_A Google Chrome plugin for managing Harvest timers and sync them with Target Process projects_
 
 ## Summary
 
@@ -23,11 +19,6 @@ Hayfever can currently:
 * Create new timers
 * Edit and update existing timers
 
-## Installation Instructions
-
-Hayfever is available for download on the Chrome Web Store, for the low low price of $0. That's the preferred method for getting Hayfever, since you'll automatically get all future updates as soon as they're released.
-
-[Get Hayfever from the Chrome Web Store](https://chrome.google.com/extensions/detail/hieiheiincjomjoiiknfcmiioakhlhmj)
 
 ### The Hacker Method
 
