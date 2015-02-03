@@ -73,7 +73,7 @@ tasks_controller = ($scope) ->
       $scope.prefs                 = resp.preferences
       $scope.table_spinner_visible = false
       $scope.$apply()
-  
+
   $scope.add_timer = ->
     $scope.form_task.notes = $('#task-notes').val()
     $scope.form_spinner_visible = true
@@ -88,7 +88,7 @@ tasks_controller = ($scope) ->
       tpSpent: $scope.form_task.hours
       tpRemaining: $scope.form_task.tpremaining
       entryDate: (new Date()).toJSON()
-    chrome.runtime.sendMessage 
+    chrome.runtime.sendMessage
         method: 'add_timer'
         active_timer_id: $scope.active_timer_id
         task: task
@@ -96,11 +96,12 @@ tasks_controller = ($scope) ->
             console.log 'Resp.tpMap is'
             console.log resp.tpMap
             $scope.tpMap = resp.tpMap
+            localStorage.setItem('tempTpmap',JSON.stringify(resp.tpMap))
             $scope.form_spinner_visible = false
             $scope.hide_form()
             $scope.refresh()
     return
-  
+
   $scope.tp_project_change = ->
     $scope.form_spinner_visible = true
     $scope.storiesForProject = []
@@ -108,7 +109,9 @@ tasks_controller = ($scope) ->
     tpClient = $scope.theClient
     tpStories = tpClient.getStories $scope.form_task.tpproject
     # projectTitle = $('#tp-project-select option:selected').val()
-    $('#task-notes').val('#' + $scope.form_task.tpproject)
+    #$('#task-notes').val('#' + $scope.form_task.tpproject)
+    window.strProject = '#' + $scope.form_task.tpproject
+    $('#task-notes').val(window.strProject)
     tpStories.success (json) =>
         stories = json.Items
         $scope.storiesForProject.push({ Id: story.Id, Name: story.Name }) for story in stories
@@ -120,15 +123,17 @@ tasks_controller = ($scope) ->
     $scope.tasks = []
     current_project = _($scope.projects).find (p) -> p.id == parseInt($scope.form_task.project)
     tasks = current_project.tasks
-    
+
     tasks.forEach (task) ->
       task.billable_text = if task.billable then 'Billable' else 'Non Billable'
       $scope.tasks.push task
-  
+
   $scope.story_change = ->
-    currentText = $('#task-notes').val()
-    currentText = currentText.concat(' - #', $scope.form_task.tpstory)
-    $('#task-notes').val(currentText)
+    #currentText = $('#task-notes').val()
+    #currentText = currentText.concat(' - #', $scope.form_task.tpstory)
+    #$('#task-notes').val(currentText)
+    window.strStory = ' - #' + $scope.form_task.tpstory
+    $('#task-notes').val(window.strProject + window.strStory)
     $scope.form_spinner_visible = true
     $scope.tasksForStory = []
     tpClient = $scope.theClient
@@ -141,45 +146,47 @@ tasks_controller = ($scope) ->
         $scope.form_spinner_visible = false
         $scope.$apply()
         return
-  
+
   $scope.task_change = ->
       #taskTitle = $('#tp-task-select option:selected').text()
-      currentText = $('#task-notes').val()
+      #currentText = $('#task-notes').val()
       #currentText = currentText.concat(' - ', taskTitle)
-      currentText = currentText.concat(' - #', $scope.form_task.tptask)
-      $('#task-notes').val(currentText)
+      #currentText = currentText.concat(' - #', $scope.form_task.tptask)
+      #$('#task-notes').val(currentText)
+      window.strTask = ' - #'+ $scope.form_task.tptask
+      $('#task-notes').val(window.strProject + window.strStory + window.strTask)
       return
-  
+
   $scope.toggle_timer = (timer_id) ->
     $scope.table_spinner_visible = true
     chrome.runtime.sendMessage { method: 'toggle_timer', timer_id: timer_id }, (resp) ->
       $scope.table_spinner_visible = false
       $scope.refresh()
-  
+
   $scope.delete_timer = (timer_id) ->
     $scope.table_spinner_visible = true
     chrome.runtime.sendMessage { method: 'delete_timer', timer_id: timer_id }, (resp) ->
       $scope.table_spinner_visible = false
       $scope.refresh()
-  
+
   $scope.stop_timer = (timer_id) =>
     $scope.stoppingTimer = true
     $scope.show_form(timer_id)
     #$scope.table_spinner_visible = true
     #$scope.refresh()
-  
+
   $scope.stop_and_log = (timer_id) =>
     # need to stop the timer in harvest
     # need to log the entry in tp
     # there is duplication here but I think I need to also set certain things here such as removing stop, pause and potentially notes button
-    
+
     # first check if time rmaining is set
     return if $scope.active_timer_id is 0
 
-    if $scope.form_task.tpremaining is `undefined` or $scope.form_task.tpremaining is null  
+    if $scope.form_task.tpremaining is `undefined` or $scope.form_task.tpremaining is null
         $scope.remainingRequired = true
         return
-    else 
+    else
         $scope.remainingRequired = false
 
     $scope.form_task.notes = $('#task-notes').val()
@@ -195,7 +202,7 @@ tasks_controller = ($scope) ->
       tpSpent: $scope.form_task.hours
       tpRemaining: $scope.form_task.tpremaining
       entryDate: (new Date()).toJSON()
-    chrome.runtime.sendMessage 
+    chrome.runtime.sendMessage
         method: 'stop_timer'
         timer_id: $scope.active_timer_id
         task: task
@@ -206,12 +213,12 @@ tasks_controller = ($scope) ->
             $scope.form_spinner_visible = false
             $scope.hide_form()
             $scope.refresh()
-    return    
-  
+    return
+
   $scope.show_form = (timer_id=0) ->
     $scope.active_timer_id = timer_id
     $scope.reset_form_fields()
-    
+
     unless $scope.active_timer_id is 0
       timer = _($scope.timers).find (item) -> item.id == $scope.active_timer_id
 
@@ -224,6 +231,7 @@ tasks_controller = ($scope) ->
         $scope.project_change()
 
         # Now show the tpThings
+
         mapEntry = _($scope.tpMap).find (item) -> item.timerId == timer_id
         if mapEntry and mapEntry.tpProject?
             $scope.form_task.tpproject = mapEntry.tpProject
@@ -232,14 +240,15 @@ tasks_controller = ($scope) ->
             # trigger change
             $scope.tp_project_change()
             $scope.story_change()
-    
+            $('#task-notes').val(timer.notes)
+
     $scope.form_visible = true
-  
+
   $scope.hide_form = ->
     $scope.form_visible = false
     $scope.storiesForProject = []
     $scope.stoppingTimer == false if $scope.stoppingTimer is true
-  
+
   $scope.reset_form_fields = ->
     $scope.form_task =
       project: null
