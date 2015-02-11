@@ -55,12 +55,30 @@ class BackgroundApplication
         get_preferences: =>
           @get_preferences (prefs) => send_response preferences: prefs
         add_timer: =>
-          @tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
+          tpTaskTimerId=0
+          retrievedObject = localStorage.getItem('tempTpmap')
+          #@todays_entry_tp_map = JSON.parse(retrievedObject) if retrievedObject !=null
+          if retrievedObject !=null
+            @todays_entry_tp_map = JSON.parse(retrievedObject)
+            if request.active_timer_id != 0
+             mapEntry = _(@todays_entry_tp_map).find (item) -> item.timerId == request.active_timer_id
+             tpTaskTimerId = mapEntry.tpTaskTimerId
           if request.active_timer_id != 0
             result = @client.update_entry request.active_timer_id, request.task, @todays_entry_tp_map, send_json_response
+            if tpTaskTimerId != 0
+              @tpClient.update_entry request.active_timer_id, tpTaskTimerId, request.task, @todays_entry_tp_map, send_json_response
           else
             result = @client.add_entry request.task, @todays_entry_tp_map, send_json_response
           return
+          # retrievedObject = localStorage.getItem('tempTpmap')
+          # @todays_entry_tp_map = JSON.parse(retrievedObject) if retrievedObject !=null
+          # #@tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
+          # if request.active_timer_id != 0
+          #   result = @client.update_entry request.active_timer_id, request.task, @todays_entry_tp_map, send_json_response
+          # else
+          #   result = @client.add_entry request.task, @todays_entry_tp_map, send_json_response
+          # return
+          #
           # this is now moved to client's add entry function
           ###
           result.success (resultData, textStatus, jqXhr) ->
@@ -75,14 +93,20 @@ class BackgroundApplication
             send_json_response resultData
             return
           ###
+        add_tp_timer: =>
+          @tpClient.postTime(request.task, request.timer_id, request.tpMap);
         stop_timer: =>
-          result = @client.stop_timer request.timer_id, send_json_response
+          #@tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
+          @tpClient.postTime request.task, request.timer_id, @todays_entry_tp_map
+          result = @client.stop_timer request.timer_id, request.task, @todays_entry_tp_map, send_json_response
           return
           # result.complete send_json_response
         toggle_timer: =>
           result = @client.toggle_timer request.timer_id
           result.complete send_json_response
         delete_timer: =>
+          if request.tpTaskTimerId != 0
+           @tpClient.delete_entry(request.tpTaskTimerId);
           result = @client.delete_entry request.timer_id
           result.complete send_json_response
         reload_app: =>
@@ -117,7 +141,7 @@ class BackgroundApplication
     @timer_running         = false
     @todays_entry_tp_map   = []
 
-    chrome.browserAction.setTitle title: "Hayfever for Harvest"
+    chrome.browserAction.setTitle title: "One Time Tracking"
     register_message_listeners.call this
     start_refresh_interval.call this if @subdomain and @auth_string
 
@@ -223,7 +247,7 @@ class BackgroundApplication
       else
         @current_hours = 0.0
         @timer_running = false
-        chrome.browserAction.setTitle title: 'Hayfever for Harvest'
+        chrome.browserAction.setTitle title: 'One Time Tracking'
         @stop_badge_flash() if @badge_flash_interval isnt 0
 
       @set_badge()

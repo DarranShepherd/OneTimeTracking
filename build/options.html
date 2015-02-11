@@ -2,7 +2,7 @@
 <html lang="en" ng-app="hayfeverOptions" ng-csp>
 <head>
     <meta charset="UTF-8" />
-    <title>HayfeverExt for Chrome: Options</title>
+    <title>OneTimeTracking for Chrome: Options</title>
 
     <link rel="stylesheet" href="js/vendor/angular/angular-csp.css">
     <link rel="stylesheet" href="css/options.css">
@@ -17,7 +17,7 @@
 <body ng-controller="OptionsController">
     <div class="container">
         <header id="header">
-            <h1>Hayfever Options</h1>
+            <h1>One Time Tracking Options</h1>
             <span ng-show="debug_mode">
                 <input type="checkbox" ng-model="options_saved"> Show banner?
             </span>
@@ -44,7 +44,7 @@
                 </p>
             </div>
             <div class="input-group" id="authentication">
-                <h2>TP Authentication</h2>
+                <h2>Target Process Authentication</h2>
                 <p>
                     <label for="tp_subdomain">TP Subdomain</label>
                     <input type="text" ng-model="tpsubdomain" placeholder="Enter Subdomain" name="tp_subdomain" required>
@@ -56,16 +56,16 @@
                     <span class="hint">Usually your email address</span>
                 </p>
                 <p>
-                    <label for="tp-password">Harvest Password</label>
+                    <label for="tp-password">TP Password</label>
                     <input type="password" placeholder="{{tp_password_placeholder}}" ng-model="tppassword" name="tp-password">
                 </p>
             </div>
             <div class="input-group" id="plugin-prefs">
                 <h2>Plugin Preferences</h2>
-                <p> 
+                <p>
                     <input type="checkbox" name="enable_analytics" id="enable-analytics" ng-model="preferences.enable_analytics" />
                     <label for="enable-analytics">Collect anonymous usage statistics?</label>
-                    <span class="hint">Help us improve Hayfever by allowing us to collect anonymous usage info. Enabling this option injects a Google Analytics snippet into the extension's popup page.</span>
+                    <span class="hint">Help us improve OneTimeTrackingExt by allowing us to collect anonymous usage info. Enabling this option injects a Google Analytics snippet into the extension's popup page.</span>
                 </p>
 
                 <p>

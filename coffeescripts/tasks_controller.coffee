@@ -96,7 +96,7 @@ tasks_controller = ($scope) ->
             console.log 'Resp.tpMap is'
             console.log resp.tpMap
             $scope.tpMap = resp.tpMap
-            localStorage.setItem('tempTpmap',JSON.stringify(resp.tpMap))
+            #localStorage.setItem('tempTpmap',JSON.stringify(resp.tpMap))
             $scope.form_spinner_visible = false
             $scope.hide_form()
             $scope.refresh()
@@ -165,7 +165,12 @@ tasks_controller = ($scope) ->
 
   $scope.delete_timer = (timer_id) ->
     $scope.table_spinner_visible = true
-    chrome.runtime.sendMessage { method: 'delete_timer', timer_id: timer_id }, (resp) ->
+    @retrivedJson=[];
+    retrievedObject = localStorage.getItem('tempTpmap');
+    @retrivedJson = JSON.parse(retrievedObject);
+    mapEntry = _(@retrivedJson).find (item) -> item.timerId == timer_id
+    id = mapEntry.tpTaskTimerId;
+    chrome.runtime.sendMessage { method: 'delete_timer', timer_id: timer_id, tpTaskTimerId: id }, (resp) ->
       $scope.table_spinner_visible = false
       $scope.refresh()
 
@@ -247,7 +252,7 @@ tasks_controller = ($scope) ->
   $scope.hide_form = ->
     $scope.form_visible = false
     $scope.storiesForProject = []
-    $scope.stoppingTimer == false if $scope.stoppingTimer is true
+    $scope.stoppingTimer = false if $scope.stoppingTimer is true
 
   $scope.reset_form_fields = ->
     $scope.form_task =

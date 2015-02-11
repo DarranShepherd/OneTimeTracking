@@ -43,13 +43,13 @@
                     {{timer.hours}}
                 </td>
                 <td class="entry-toggle" align="center">
-                    <a href="#" class="stop-timer" ng-click="stop_timer(timer.id)">
+                    <a href="#" class="stop-timer" ng-click="stop_timer(timer.id)" >
                         <span class="fa fa-stop"></span>
                     </a>
-                    <a href="#" class="toggle-timer" ng-click="toggle_timer(timer.id)">
+                    <a href="#" class="toggle-timer" ng-click="toggle_timer(timer.id)" >
                         <span class="fa fa-play"></span>
                     </a>
-                    <a href="#" ng-click="show_form(timer.id)">
+                    <a href="#" ng-click="show_form(timer.id)" >
                         <span class="fa fa-pencil-square-o"></span>
                     </a>
                     <a href="#" ng-click="delete_timer(timer.id)">
@@ -66,7 +66,7 @@
             <tr class="configure" ng-if="!authorized">
                 <td colspan="3" align="center">
                     <span class="fa fa-cog"></span>
-                    <em>Please visit the <a href="options.html" target="_blank">Options Page</a> and sign in to Harvest.</em>
+                    <em>Please visit the <a href="options.html" target="_blank">Options Page</a> and sign in to Harvest and Target process.</em>
                 </td>
             </tr>
         </tbody>
@@ -96,8 +96,7 @@
 
     <ul class="toolbar" ng-if="harvest_url">
         <li>
-            <span class="fa fa-arrow-circle-o-left"></span>
-            <a href="{{harvest_url}}" id="harvest-link" target="_blank">Visit Harvest App</a>
+
         </li>
         <li ng-if="debug_mode">
             <a href="#" ng-click="toggle_spinners()">Toggle Spinners</a>
@@ -172,7 +171,7 @@
                 </p>
             </fieldset>
 
-            
+
             <p>
                 <label for="task-hours">Hours</label>
                 <input type="text" id="task-hours" value="" name="task_hours" placeholder="0" ng-model="form_task.hours" size="4" />
