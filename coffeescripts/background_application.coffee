@@ -13,7 +13,7 @@ class BackgroundApplication
     console.debug "Registering asynchronous message listeners"
 
     chrome.runtime.onMessage.addListener (request, sender, send_response) =>
-      send_json_response = (json) => 
+      send_json_response = (json) =>
           console.log 'Logging in BGAPP'
           # console.log @todays_entry_tp_map
           # json = $.extend json, { tpMap: @todays_entry_tp_map }
@@ -55,12 +55,30 @@ class BackgroundApplication
         get_preferences: =>
           @get_preferences (prefs) => send_response preferences: prefs
         add_timer: =>
-          @tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
+          tpTaskTimerId=0
+          retrievedObject = localStorage.getItem('tempTpmap')
+          #@todays_entry_tp_map = JSON.parse(retrievedObject) if retrievedObject !=null
+          if retrievedObject !=null
+            @todays_entry_tp_map = JSON.parse(retrievedObject)
+            if request.active_timer_id != 0
+             mapEntry = _(@todays_entry_tp_map).find (item) -> item.timerId == request.active_timer_id
+             tpTaskTimerId = mapEntry.tpTaskTimerId
           if request.active_timer_id != 0
             result = @client.update_entry request.active_timer_id, request.task, @todays_entry_tp_map, send_json_response
+            if tpTaskTimerId != 0
+              @tpClient.update_entry request.active_timer_id, tpTaskTimerId, request.task, @todays_entry_tp_map, send_json_response
           else
             result = @client.add_entry request.task, @todays_entry_tp_map, send_json_response
           return
+          # retrievedObject = localStorage.getItem('tempTpmap')
+          # @todays_entry_tp_map = JSON.parse(retrievedObject) if retrievedObject !=null
+          # #@tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
+          # if request.active_timer_id != 0
+          #   result = @client.update_entry request.active_timer_id, request.task, @todays_entry_tp_map, send_json_response
+          # else
+          #   result = @client.add_entry request.task, @todays_entry_tp_map, send_json_response
+          # return
+          #
           # this is now moved to client's add entry function
           ###
           result.success (resultData, textStatus, jqXhr) ->
@@ -75,14 +93,20 @@ class BackgroundApplication
             send_json_response resultData
             return
           ###
+        add_tp_timer: =>
+          @tpClient.postTime(request.task, request.timer_id, request.tpMap);
         stop_timer: =>
-          result = @client.stop_timer request.timer_id, send_json_response
+          #@tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
+          @tpClient.postTime request.task, request.timer_id, @todays_entry_tp_map
+          result = @client.stop_timer request.timer_id, request.task, @todays_entry_tp_map, send_json_response
           return
           # result.complete send_json_response
         toggle_timer: =>
           result = @client.toggle_timer request.timer_id
           result.complete send_json_response
         delete_timer: =>
+          if request.tpTaskTimerId != 0
+           @tpClient.delete_entry(request.tpTaskTimerId);
           result = @client.delete_entry request.timer_id
           result.complete send_json_response
         reload_app: =>
@@ -117,19 +141,22 @@ class BackgroundApplication
     @timer_running         = false
     @todays_entry_tp_map   = []
 
-    chrome.browserAction.setTitle title: "Hayfever for Harvest"
+    chrome.browserAction.setTitle title: "One Time Tracking"
     register_message_listeners.call this
     start_refresh_interval.call this if @subdomain and @auth_string
-  
+
+    retrievedObject = localStorage.getItem('tempTpmap')
+    @todays_entry_tp_map = JSON.parse(retrievedObject) if retrievedObject !=null and this.todays_entry_tp_map.length == 0
+
   # Class Methods
   @get_auth_data: (callback) ->
     chrome.storage.local.get [ 'harvest_subdomain', 'harvest_auth_string', 'harvest_username', 'tp_subdomain', 'tp_username', 'tp_auth_string' ], (items) ->
       callback(items)
-  
+
   @get_preferences: (callback) ->
     chrome.storage.local.get 'hayfever_prefs', (items) ->
       callback(items)
-  
+
   @migrate_preferences: (callback) ->
     options =
       harvest_subdomain: localStorage['harvest_subdomain']
@@ -144,13 +171,13 @@ class BackgroundApplication
       localStorage.removeItem 'harvest_username'
       localStorage.removeItem 'hayfever_prefs'
       callback(options)
-  
-  # Instance Methods  
+
+  # Instance Methods
   get_preferences: (callback = $.noop) ->
     BackgroundApplication.get_preferences (items) =>
       @preferences = items.hayfever_prefs || {}
       callback(items)
-  
+
   set_badge: =>
     @get_preferences()
     prefs = @preferences
@@ -166,14 +193,14 @@ class BackgroundApplication
 
     chrome.browserAction.setBadgeBackgroundColor color: badge_color
     chrome.browserAction.setBadgeText text: badge_text
-  
+
   tp_get_stories: (tpProjectId) =>
     tpStories = @tpClient.getStories(tpProjectId)
     tpStories.success (json) =>
         console.log 'Stories'
         console.log json
         return
-  
+
   refresh_hours: (callback = $.noop) =>
     console.debug 'refreshing hours'
     @get_preferences()
@@ -220,7 +247,7 @@ class BackgroundApplication
       else
         @current_hours = 0.0
         @timer_running = false
-        chrome.browserAction.setTitle title: 'Hayfever for Harvest'
+        chrome.browserAction.setTitle title: 'One Time Tracking'
         @stop_badge_flash() if @badge_flash_interval isnt 0
 
       @set_badge()
@@ -234,19 +261,19 @@ class BackgroundApplication
         @authorized = false
         chrome.browserAction.setBadgeBackgroundColor color: [255, 0, 0, 255]
         chrome.browserAction.setBadgeText text: '!'
-  
+
   badge_color: (alpha) =>
     color = $.hexColorToRGBA @preferences.badge_color, alpha
     chrome.browserAction.setBadgeBackgroundColor color: color
-  
+
   badge_flash: (alpha) =>
     @badge_color 255
     setTimeout @badge_color, 1000, 100
-  
+
   start_badge_flash: ->
     console.debug 'Starting badge blink'
     @badge_flash_interval = setInterval @badge_flash, 2000
-  
+
   stop_badge_flash: ->
     console.debug 'Stopping badge blink'
     clearInterval @badge_flash_interval
