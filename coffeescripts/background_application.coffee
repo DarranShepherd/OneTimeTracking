@@ -48,7 +48,7 @@ class BackgroundApplication
             current_hours: @current_hours
             current_task: @current_task
             harvest_url: if @client.subdomain then @client.full_url else null
-            targetProcess_url: "https://#{@tp_subdomain}.tpondemand.com"
+            targetProcess_url: if @tp_subdomain then "https://#{@tp_subdomain}.tpondemand.com" else null
             preferences: @preferences
             tpMap: @todays_entry_tp_map
         get_tp_stories: (id) =>
