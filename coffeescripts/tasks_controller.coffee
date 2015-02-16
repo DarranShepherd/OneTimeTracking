@@ -35,6 +35,7 @@ tasks_controller = ($scope) ->
   # Grab background application data
   chrome.runtime.sendMessage { method: 'get_entries' }, (resp) ->
     $scope.harvest_url   = resp.harvest_url
+    $scope.targetProcess_url   = resp.targetProcess_url
     $scope.authorized    = resp.authorized
     $scope.projects      = resp.projects
     $scope.clients       = resp.clients

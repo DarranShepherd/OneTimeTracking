@@ -94,10 +94,14 @@
         <div class="clear">&nbsp;</div>
     </div>
 
-    <ul class="toolbar" ng-if="harvest_url">
+    <ul class="toolbar" ng-if="harvest_url || targetProcess_url">
         <li ng-if="harvest_url">
             <span class="fa fa-arrow-circle-o-left"></span>
             <a href="{{harvest_url}}" id="harvest-link" target="_blank">Visit Harvest App</a>
+        </li>
+        <li ng-if="targetProcess_url">
+            <span class="fa fa-arrow-circle-o-left"></span>
+            <a href="{{targetProcess_url}}" id="targetProcess-link" target="_blank">Visit Target Process App</a>
         </li>
         <li ng-if="debug_mode">
             <a href="#" ng-click="toggle_spinners()">Toggle Spinners</a>
