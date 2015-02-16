@@ -29,6 +29,11 @@ class @TPClient.TargetProcess
     ajax_opts = @build_ajax_options.call this, ajax_opts
     $.ajax(tasks_url, ajax_opts)
 
+  getTaskDetail : (taskId, ajax_opts = {}) ->
+    taskDetail_url = @full_url + '/Tasks/' + taskId + '?skip=0&take=999&include=[id,name,TimeRemain]'
+    ajax_opts = @build_ajax_options.call this, ajax_opts
+    $.ajax(taskDetail_url, ajax_opts)
+
   delete_entry: (eid, ajax_opts = {}) ->
     delete_url       = @full_url + '/times.asmx/' + eid
     ajax_temp = {url: delete_url, type:'DELETE'}

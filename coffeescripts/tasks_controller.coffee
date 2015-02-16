@@ -77,6 +77,7 @@ tasks_controller = ($scope) ->
   $scope.add_timer = ->
     $scope.form_task.notes = $('#task-notes').val()
     $scope.form_spinner_visible = true
+
     task =
       project_id: $scope.form_task.project
       task_id: $scope.form_task.task
@@ -88,6 +89,7 @@ tasks_controller = ($scope) ->
       tpSpent: $scope.form_task.hours
       tpRemaining: $scope.form_task.tpremaining
       entryDate: (new Date()).toJSON()
+
     chrome.runtime.sendMessage
         method: 'add_timer'
         active_timer_id: $scope.active_timer_id
@@ -153,9 +155,25 @@ tasks_controller = ($scope) ->
       #currentText = currentText.concat(' - ', taskTitle)
       #currentText = currentText.concat(' - #', $scope.form_task.tptask)
       #$('#task-notes').val(currentText)
+      
       window.strTask = ' - #'+ $scope.form_task.tptask
       $('#task-notes').val(window.strProject + window.strStory + window.strTask)
-      return
+      
+      $scope.form_spinner_visible = true
+      tpClient = $scope.theClient
+      tpTaskDetail  = tpClient.getTaskDetail $scope.form_task.tptask
+
+      tpTaskDetail.success (json) =>
+            taskDetail = json
+
+            timeRemainUpdated = if $scope.form_task.hours != null then (if (taskDetail.TimeRemain - $scope.form_task.hours) > 0 then (taskDetail.TimeRemain - $scope.form_task.hours) else 0) else taskDetail.TimeRemain
+            timeRemainUpdated = +(Math.round(timeRemainUpdated + "e+2")  + "e-2")
+            $('#task-hours-remaining').val(timeRemainUpdated)
+            $scope.form_task.tpremaining = timeRemainUpdated
+
+            $scope.form_spinner_visible = false
+            $scope.$apply()
+            return
 
   $scope.toggle_timer = (timer_id) ->
     $scope.table_spinner_visible = true
@@ -228,6 +246,7 @@ tasks_controller = ($scope) ->
       timer = _($scope.timers).find (item) -> item.id == $scope.active_timer_id
 
       if timer
+        
         # console.log timer
         $scope.form_task.project = parseInt timer.project_id, 10
         $scope.form_task.task = parseInt timer.task_id, 10
@@ -242,9 +261,12 @@ tasks_controller = ($scope) ->
             $scope.form_task.tpproject = mapEntry.tpProject
             $scope.form_task.tpstory = mapEntry.tpStory
             $scope.form_task.tptask = mapEntry.tpTask
+
             # trigger change
             $scope.tp_project_change()
             $scope.story_change()
+            $scope.task_change()
+           
             $('#task-notes').val(timer.notes)
 
     $scope.form_visible = true
