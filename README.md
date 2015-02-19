@@ -49,7 +49,7 @@ Analytics are turned off by default because I believe it should be a matter of c
 
 ## License
 
-This extension is released according to the terms of the GNU General Public License, version 2. See [LICENSE](https://github.com/mikedamage/hayfever-chrome/blob/master/LICENSE) for details.
+This extension is released according to the terms of the GNU General Public License, version 2. See [LICENSE](https://github.com/lmanapure/OneTimeTracking/blob/master/LICENSE) for details.
 
 [1]: http://www.pledgie.com/campaigns/14742
 [2]: http://www.pledgie.com/campaigns/14742.png?skin_name=chrome
