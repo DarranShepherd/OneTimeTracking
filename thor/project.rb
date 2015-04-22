@@ -23,7 +23,7 @@ class Project < Thor
     dist_dir = $root_dir.join 'build'
     manifest = JSON.parse dist_dir.join('manifest.json').read
     version  = manifest['version']
-    output   = pkg_dir.join "hayfever-v#{version}.zip"
+    output   = pkg_dir.join "OneTimeTracking-v#{version}.zip"
 
     unless pkg_dir.directory?
       say_status 'mkdir', pkg_dir.to_s, :yellow
@@ -44,7 +44,7 @@ class Project < Thor
       end
 
       files.each do |file|
-        zip_path = file.to_s.gsub(dist_dir.to_s, 'hayfever')
+        zip_path = file.to_s.gsub(dist_dir.to_s, 'OneTimeTracking')
         say_status 'add', zip_path, :yellow
         zip.add zip_path, file.to_s
       end
