@@ -6,17 +6,19 @@ _A Google Chrome plugin for managing Harvest timers and sync them with Target Pr
 
 Hayfever is a plugin for Google Chrome that lets you manage your [Harvest](http://www.getharvest.com) timers and timesheets.
 
-Hayfever currently duplicates the feature set of the Harvest desktop widget, but I've got plans to extend its functionality far beyond that.
+One Time Tracking is built on top of the Hayfever extension to log time to Target Process in addition to Harvest.
 
-### Stuff Hayfever Can Do
+### Stuff OneTimeTracking Can Do
 
-Hayfever can currently:
+OneTimeTracking can currently:
 
 * Authenticate w/ Harvest time tracking API
+* Authenticate w/ Target Process API
 * Display a badge with total hours worked today
 * Display a list of existing timers
 * Start and stop existing timers
-* Create new timers
+* Create new timers for Harvest
+* Create new timers for Harvest that are linked with Target Process projects
 * Edit and update existing timers
 
 
@@ -39,25 +41,15 @@ $ thor project:zip_release
 
 From there you can install the extension by enabling developer mode in chrome://extensions and loadng the `build` directory as an unpacked extension.
 
-## Screenshots
-
-![Hayfever Hours Badge](http://mikegreen.s3.amazonaws.com/projects/hayfever/screenshot-02.png)
-![Hayfever Hours Badge: Red](http://mikegreen.s3.amazonaws.com/projects/hayfever/hours-badge-red.png)
-![Hayfever Hours Badge: Blue](http://mikegreen.s3.amazonaws.com/projects/hayfever/hours-badge-blue.png)
-Hayfever Hours Badge (omg colorz!)
-
-![Hayfever Popup Timesheet](http://mikegreen.s3.amazonaws.com/projects/hayfever/screenshot-01.png)
-Hayfever Popup Timesheet
-
 ## Usage Statistics
 
-Hayfever gathers usage statistics via Google Analytics, but only if you decide to let it. Right now I do __not__ do any event tracking, so the only data I get is how many people use the plugin and how often.
+OneTimeTracking gathers usage statistics via Google Analytics, but only if you decide to let it. Right now it do __not__ do any event tracking, so the only data it get is how many people use the plugin and how often.
 
 Analytics are turned off by default because I believe it should be a matter of choice.
 
 ## License
 
-This extension is released according to the terms of the GNU General Public License, version 2. See [LICENSE](https://github.com/mikedamage/hayfever-chrome/blob/master/LICENSE) for details.
+This extension is released according to the terms of the GNU General Public License, version 2. See [LICENSE](https://github.com/lmanapure/OneTimeTracking/blob/master/LICENSE) for details.
 
 [1]: http://www.pledgie.com/campaigns/14742
 [2]: http://www.pledgie.com/campaigns/14742.png?skin_name=chrome
