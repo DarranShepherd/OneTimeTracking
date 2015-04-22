@@ -8,7 +8,7 @@ Hayfever is a plugin for Google Chrome that lets you manage your [Harvest](http:
 
 One Time Tracking is built on top of the Hayfever extension to log time to Target Process in addition to Harvest.
 
-### Stuff Hayfever Can Do
+### Stuff OneTimeTracking Can Do
 
 OneTimeTracking can currently:
 
