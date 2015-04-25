@@ -11,7 +11,7 @@
             "js/vendor/sugar/release/sugar.min.js",
             "js/prototype-extensions.js",
             "js/vendor/underscore/underscore-min.js",
-            "js/vendor/jquery/jquery.min.js",
+            "js/vendor/jquery/dist/jquery.min.js",
             "js/jquery.hexcolors.js",
             "js/harvest.js",
             "js/background_application.js",
