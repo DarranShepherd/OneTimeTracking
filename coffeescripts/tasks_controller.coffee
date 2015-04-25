@@ -96,8 +96,8 @@ tasks_controller = ($scope) ->
         active_timer_id: $scope.active_timer_id
         task: task
         (resp) ->
-            console.log 'Resp.tpMap is'
-            console.log resp.tpMap
+            #console.log 'Resp.tpMap is'
+            #console.log resp.tpMap
             $scope.tpMap = resp.tpMap
             #localStorage.setItem('tempTpmap',JSON.stringify(resp.tpMap))
             $scope.form_spinner_visible = false
@@ -207,6 +207,9 @@ tasks_controller = ($scope) ->
     # first check if time rmaining is set
     return if $scope.active_timer_id is 0
 
+    currentTimer = _($scope.timers).find (item) -> item.id == $scope.active_timer_id
+    runningTimer = currentTimer.running?
+
     if $scope.form_task.tpremaining is `undefined` or $scope.form_task.tpremaining is null
         $scope.remainingRequired = true
         return
@@ -230,9 +233,10 @@ tasks_controller = ($scope) ->
         method: 'stop_timer'
         timer_id: $scope.active_timer_id
         task: task
+        running: runningTimer
         (resp) ->
-            console.log 'Resp.tpMap is'
-            console.log resp.tpMap
+            #console.log 'Resp.tpMap is'
+            #console.log resp.tpMap
             $scope.tpMap = resp.tpMap
             $scope.form_spinner_visible = false
             $scope.hide_form()
@@ -269,7 +273,6 @@ tasks_controller = ($scope) ->
             $scope.task_change()
            
             $('#task-notes').val(timer.notes)
-
     $scope.form_visible = true
 
   $scope.hide_form = ->

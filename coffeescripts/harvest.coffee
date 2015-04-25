@@ -150,11 +150,10 @@ class Harvest
     ajax_opts = $.extend ajax_opts, postOptions
     $.ajax url, ajax_opts
 
-  stop_timer: (eid, props, tpMap, send_json_response, ajax_opts = {}) ->
-
-    url       = build_url.call this, 'daily', 'timer', String(eid)
-    ajax_opts = build_ajax_options.call this, ajax_opts
-    $.ajax url, ajax_opts
+  stop_timer: (eid, props, running, tpMap, send_json_response, ajax_opts = {}) ->
+    #url = build_url.call this, 'daily', 'timer', String(eid)
+    #ajax_opts = build_ajax_options.call this, ajax_opts
+    #$.ajax url, ajax_opts
 
     url       = build_url.call this, 'daily', 'update', String(eid)
     successFunction = (resultData, textStatus, jqXhr) ->
@@ -174,6 +173,7 @@ class Harvest
     ajax_opts = $.extend ajax_opts, @ajax_defaults
     ajax_opts = $.extend ajax_opts, postOptions
     $.ajax url, ajax_opts
+    # toggle_timer eid,{} if running
 
   ###
   Delete an entry
