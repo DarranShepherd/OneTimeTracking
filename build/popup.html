@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
 
     <link rel="stylesheet" href="js/vendor/angular/angular-csp.css">
+    <link rel="stylesheet" href="js/vendor/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="js/vendor/angular-ui-select/dist/select.css">
+    <link rel="stylesheet" href="js/vendor/select2/select2.css">
     <link rel="stylesheet" href="css/font-awesome.css">
     <link rel="stylesheet" href="css/popup.css">
 
@@ -14,10 +17,19 @@
     <script src="js/vendor/angular-animate/angular-animate.min.js"></script>
     <script src="js/vendor/spin.js/spin.js"></script>
     <script src="js/vendor/spin.js/jquery.spin.js"></script>
+    <script src="js/vendor/angular-sanitize/angular-sanitize.js"></script>
+    <script src="js/vendor/angular-ui-select/dist/select.js"></script>
     <script src="js/init-spinners.js"></script>
     <script src="js/TargetProcess.js"></script>
     <script src="js/tasks_controller.js"></script>
     <script src="js/google-analytics.js"></script>
+
+    <style type="text/css">
+        .select2-search > input[type=text] {
+            width: 100% !important;
+        }
+    </style>
+
 </head>
 <body ng-controller="TasksController">
     <table cellspacing="0" width="340" id="timesheet">
@@ -120,33 +132,48 @@
                 <legend>Target Process</legend>
                 <p>
                     <label for="tp-project-select">Project</label>
-                    <select id="tp-project-select"
-                            name="client"
-                            ng-model="form_task.tpproject"
-                            ng-change="tp_project_change()"
-                            ng-options="p.Id as p.Name for p in tpProjects">
-                        <option value="">- Select a Project -</option>
-                    </select>
+                    <ui-select id="tp-project-select"
+                               name="tp-project-select"
+                               ng-model="form_task.tpproject.selected"
+                               ng-change="tp_project_change()"
+                               theme="select2"
+                               style="width: 250px;"
+                               ng-disabled="disabled">
+                        <ui-select-match placeholder="Select a project...">{{$select.selected.Name}}</ui-select-match>
+                        <ui-select-choices repeat="project in tpProjects | filter: $select.search">
+                            {{project.Name}}
+                        </ui-select-choices>
+                    </ui-select>
                 </p>
                 <p>
-                    <label for="tp-story-select">Story</label>
-                    <select id="tp-story-select"
-                            name="story"
-                            ng-model="form_task.tpstory"
-                            ng-change="story_change()"
-                            ng-options="s.Id as s.Name for s in storiesForProject">
-                        <option value="">- Select a Story -</option>
-                    </select>
+                    <label for="tp-story-select">Project</label>
+                    <ui-select id="tp-story-select"
+                               name="tp-story-select"
+                               ng-model="form_task.tpstory.selected"
+                               ng-change="story_change()"
+                               theme="select2"
+                               style="width: 250px;"
+                               ng-disabled="disabled">
+                        <ui-select-match placeholder="Select a story...">{{$select.selected.Name}}</ui-select-match>
+                        <ui-select-choices repeat="story in storiesForProject | filter: $select.search">
+                            {{story.Name}}
+                        </ui-select-choices>
+                    </ui-select>
                 </p>
                 <p>
-                    <label for="tp-task-select">Tasks</label>
-                    <select id="tp-task-select"
-                            name="tpTasks"
-                            ng-model="form_task.tptask"
-                            ng-change="task_change()"
-                            ng-options="t.Id as t.Name for t in tasksForStory">
-                        <option value="">- Select a Task -</option>
-                    </select>
+                    <label for="tp-task-select">Task</label>
+                    <ui-select id="tp-task-select"
+                               name="tp-task-select"
+                               ng-model="form_task.tptask.selected"
+                               ng-change="task_change()"
+                               theme="select2"
+                               style="width: 250px;"
+                               ng-disabled="disabled">
+                        <ui-select-match placeholder="Select a task...">{{$select.selected.Name}}</ui-select-match>
+                        <ui-select-choices repeat="task in tasksForStory | filter: $select.search">
+                            <span style="color: {{getColour(task)}}">{{task.Name}}</span>
+                        </ui-select-choices>
+                    </ui-select>
                 </p>
             </fieldset>
 

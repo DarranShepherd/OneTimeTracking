@@ -2,7 +2,7 @@
 Angular.js Popup Tasks Controller
 ###
 
-app = angular.module 'hayfeverApp', [ 'ngAnimate' ]
+app = angular.module 'hayfeverApp', [ 'ngAnimate', 'ngSanitize', 'ui.select' ]
 
 tasks_controller = ($scope) ->
   # DEBUG MODE: set this to true to show debug content in popup
@@ -26,9 +26,12 @@ tasks_controller = ($scope) ->
     task: null
     hours: null
     notes: null
-    tpproject: null
-    tpstory: null
-    tptask: null
+    tpproject:
+        selected: undefined
+    tpstory:
+        selected: undefined
+    tptask:
+        selected: undefined
     tpremaining: null
   # console.debug $scope.form_visible
 
@@ -110,10 +113,10 @@ tasks_controller = ($scope) ->
     $scope.storiesForProject = []
     $scope.tasksForStory = []
     tpClient = $scope.theClient
-    tpStories = tpClient.getStories $scope.form_task.tpproject
+    tpStories = tpClient.getStories $scope.form_task.tpproject.selected.Id
     # projectTitle = $('#tp-project-select option:selected').val()
     #$('#task-notes').val('#' + $scope.form_task.tpproject)
-    window.strProject = '#' + $scope.form_task.tpproject
+    window.strProject = '#' + $scope.form_task.tpproject.selected.Id
     $('#task-notes').val(window.strProject)
     tpStories.success (json) =>
         stories = json.Items
@@ -135,21 +138,26 @@ tasks_controller = ($scope) ->
     #currentText = $('#task-notes').val()
     #currentText = currentText.concat(' - #', $scope.form_task.tpstory)
     #$('#task-notes').val(currentText)
-    window.strStory = ' - #' + $scope.form_task.tpstory
+    window.strStory = ' - #' + $scope.form_task.tpstory.selected.Id
     $('#task-notes').val(window.strProject + window.strStory)
     $scope.form_spinner_visible = true
     $scope.tasksForStory = []
     tpClient = $scope.theClient
-    tpTasks = tpClient.getTasks $scope.form_task.tpstory
+    tpTasks = tpClient.getTasks $scope.form_task.tpstory.selected.Id
     #storyTitle = $('#tp-story-select option:selected').text()
     #currentText = currentText.concat(' - ', storyTitle)
     tpTasks.success (json) =>
         tasks = json.Items
-        $scope.tasksForStory.push({ Id: task.Id, Name: task.Name }) for task in tasks
+        console.log(tasks)
+        $scope.tasksForStory.push({ Id: task.Id, Name: task.Name, EntityState: task.EntityState }) for task in tasks
         $scope.form_spinner_visible = false
         $scope.$apply()
         return
 
+  $scope.getColour = (input) -> 
+    if (input.EntityState.Name == 'Done')
+        return 'LightGray'
+    return 'Black'
   $scope.task_change = ->
       #taskTitle = $('#tp-task-select option:selected').text()
       #currentText = $('#task-notes').val()
@@ -157,12 +165,12 @@ tasks_controller = ($scope) ->
       #currentText = currentText.concat(' - #', $scope.form_task.tptask)
       #$('#task-notes').val(currentText)
       
-      window.strTask = ' - #'+ $scope.form_task.tptask
+      window.strTask = ' - #'+ $scope.form_task.tptask.selected.Id
       $('#task-notes').val(window.strProject + window.strStory + window.strTask)
       
       $scope.form_spinner_visible = true
       tpClient = $scope.theClient
-      tpTaskDetail  = tpClient.getTaskDetail $scope.form_task.tptask
+      tpTaskDetail  = tpClient.getTaskDetail $scope.form_task.tptask.selected.Id
 
       tpTaskDetail.success (json) =>
             taskDetail = json
