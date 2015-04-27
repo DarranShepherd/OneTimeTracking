@@ -14,11 +14,11 @@ class BackgroundApplication
 
     chrome.runtime.onMessage.addListener (request, sender, send_response) =>
       send_json_response = (json) =>
-          console.log 'Logging in BGAPP'
-          # console.log @todays_entry_tp_map
+          #console.log 'Logging in BGAPP'
+          #console.log @todays_entry_tp_map
           # json = $.extend json, { tpMap: @todays_entry_tp_map }
           # json.tpMap = @todays_entry_tp_map
-          console.log json
+          # console.log json
           send_response json
       methods =
         refresh_hours: =>
@@ -95,10 +95,10 @@ class BackgroundApplication
             return
           ###
         add_tp_timer: =>
-          @tpClient.postTime(request.task, request.timer_id, request.tpMap);
+          @tpClient.postTime(request.task, request.timer_id, request.tpMap, true)
         stop_timer: =>
           #@tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
-          @tpClient.postTime request.task, request.timer_id, @todays_entry_tp_map
+          @tpClient.postTime request.task, request.timer_id, @todays_entry_tp_map, true
           result = @client.stop_timer request.timer_id, request.task, request.running, @todays_entry_tp_map, send_json_response
           if request.running
               result = @client.toggle_timer request.timer_id

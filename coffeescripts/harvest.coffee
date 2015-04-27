@@ -157,11 +157,14 @@ class Harvest
 
     url       = build_url.call this, 'daily', 'update', String(eid)
     successFunction = (resultData, textStatus, jqXhr) ->
-        tpMap.push mapEntry =
-            timerId: resultData.id
-            tpProject: props.tpProject
-            tpStory: props.tpStory
-            tpTask: props.tpTask
+        # check if entry exists
+        existingMap = _(tpMap).find (item) -> item.timerId == resultData.id
+        if existingMap is null    
+            tpMap.push mapEntry =
+                timerId: resultData.id
+                tpProject: props.tpProject
+                tpStory: props.tpStory
+                tpTask: props.tpTask
         resultData.tpMap = tpMap
         send_json_response resultData
         return
@@ -201,11 +204,14 @@ class Harvest
   update_entry: (eid, props, tpMap, send_json_response, ajax_opts = {}) ->
     url       = build_url.call this, 'daily', 'update', String(eid)
     successFunction = (resultData, textStatus, jqXhr) ->
-        tpMap.push mapEntry =
-            timerId: resultData.id
-            tpProject: props.tpProject
-            tpStory: props.tpStory
-            tpTask: props.tpTask
+        # check if entry exists
+        existingMap = _(tpMap).find (item) -> item.timerId == resultData.id
+        if existingMap is null
+            tpMap.push mapEntry =
+                timerId: resultData.id
+                tpProject: props.tpProject
+                tpStory: props.tpStory
+                tpTask: props.tpTask
         resultData.tpMap = tpMap
         send_json_response resultData
         return

@@ -60,16 +60,22 @@ class @TPClient.TargetProcess
     ajax_opts = $.extend ajax_opts, postOptions
     $.ajax ajax_opts
 
-  postTime: (task, timerId, tpMap, send_json_response, ajax_opts = {}) ->
+  postTime: (task, timerId, tpMap, isStopped, send_json_response , ajax_opts = {}) ->
     return if not task.hours?
     time_url = @full_url + '/Times/'
     successFunction = (resultData, textStatus, jqXhr) ->
       mapEntry = (tpMap).find (item) -> item.timerId == timerId
 
-      mapEntry.tpTaskTimerId = resultData.Id;
-      resultData.tpMap = mapEntry;
-      localStorage.setItem('tempTpmap', JSON.stringify(tpMap));
-
+      #console.log('Into Success Func')
+      #console.log(mapEntry)
+      #console.log(tpMap)
+                  
+      mapEntry.tpTaskTimerId = resultData.Id
+      mapEntry.TimerStopped = isStopped
+      resultData.tpMap = mapEntry
+      
+      localStorage.setItem('tempTpmap', JSON.stringify(tpMap))
+      return
 
     time_entry =
         Description: task.notes
@@ -77,7 +83,7 @@ class @TPClient.TargetProcess
         Remain: task.tpRemaining
         Date: task.entryDate,
         Assignable:
-            Id: task.tpTask
+            Id: task.tpTask.selected.Id
     time_struct =
         url: time_url
         type: 'POST'
