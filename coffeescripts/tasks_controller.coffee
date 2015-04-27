@@ -37,6 +37,14 @@ tasks_controller = ($scope) ->
 
   # Grab background application data
   chrome.runtime.sendMessage { method: 'get_entries' }, (resp) ->
+    (
+       (
+            # Get timer with same id
+            existingTimer = _(resp.timers).find (item) -> item.id == mapEntry.timerId
+            existingTimer.stopped = true if existingTimer?
+       ) for mapEntry in resp.tpMap when mapEntry.TimerStopped? and mapEntry.TimerStopped is true
+    ) if resp.tpMap.length > 0
+    
     $scope.harvest_url   = resp.harvest_url
     $scope.targetProcess_url   = resp.targetProcess_url
     $scope.authorized    = resp.authorized
@@ -51,14 +59,21 @@ tasks_controller = ($scope) ->
     $scope.theClient     = new TargetProcess(resp.tpClient.subdomain, resp.tpClient.auth_string)
     $scope.tpMap         = resp.tpMap
     $scope.$apply()
-    # console.debug "Response"
-    # console.debug resp
+    #console.debug "Response"
+    #console.debug resp
     # console.debug resp.projects
 
   $scope.refresh = ->
     $scope.table_spinner_visible = true
-
+    
     chrome.runtime.sendMessage { method: 'refresh_hours' }, (resp) ->
+      (
+          (
+              # Get timer with same id
+              existingTimer = _(resp.timers).find (item) -> item.id == mapEntry.timerId
+              existingTimer.stopped = true if existingTimer?
+          ) for mapEntry in resp.tpMap when mapEntry.TimerStopped? and mapEntry.TimerStopped is true
+      ) if resp.tpMap.length > 0
       $scope.harvest_url   = resp.harvest_url
       $scope.authorized    = resp.authorized
       $scope.projects      = resp.projects
