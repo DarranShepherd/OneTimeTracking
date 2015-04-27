@@ -271,9 +271,12 @@ tasks_controller = ($scope) ->
 
         mapEntry = _($scope.tpMap).find (item) -> item.timerId == timer_id
         if mapEntry and mapEntry.tpProject?
-            $scope.form_task.tpproject = mapEntry.tpProject
-            $scope.form_task.tpstory = mapEntry.tpStory
-            $scope.form_task.tptask = mapEntry.tpTask
+            $scope.form_task.tpproject = 
+                selected: mapEntry.tpProject.selected
+            $scope.form_task.tpstory =
+                selected: mapEntry.tpStory.selected
+            $scope.form_task.tptask =
+                selected: mapEntry.tpTask.selected
 
             # trigger change
             $scope.tp_project_change()
