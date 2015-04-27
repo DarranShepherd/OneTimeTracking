@@ -68,8 +68,7 @@ class @TPClient.TargetProcess
 
       #console.log('Into Success Func')
       #console.log(mapEntry)
-      #console.log(tpMap)
-                  
+      #console.log(tpMap)           
       mapEntry.tpTaskTimerId = resultData.Id
       mapEntry.TimerStopped = isStopped
       resultData.tpMap = mapEntry

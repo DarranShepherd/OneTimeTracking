@@ -4,7 +4,7 @@ Angular.js Popup Tasks Controller
 
 app = angular.module 'hayfeverApp', [ 'ngAnimate', 'ngSanitize', 'ui.select' ]
 
-tasks_controller = ($scope) ->
+tasks_controller = ($scope, $sanitize) ->
   # DEBUG MODE: set this to true to show debug content in popup
   $scope.debug_mode            = false
 
@@ -123,10 +123,16 @@ tasks_controller = ($scope) ->
             $scope.refresh()
     return
 
-  $scope.tp_project_change = ->
+  $scope.tp_project_change = (showingMappedEntry) ->
     $scope.form_spinner_visible = true
     $scope.storiesForProject = []
     $scope.tasksForStory = []
+
+    if not showingMappedEntry
+        $scope.form_task.tpstory =
+            selected: undefined
+        $scope.form_task.tptask =
+            selected: undefined
     tpClient = $scope.theClient
     tpStories = tpClient.getStories $scope.form_task.tpproject.selected.Id
     # projectTitle = $('#tp-project-select option:selected').val()
@@ -149,7 +155,7 @@ tasks_controller = ($scope) ->
       task.billable_text = if task.billable then 'Billable' else 'Non Billable'
       $scope.tasks.push task
 
-  $scope.story_change = ->
+  $scope.story_change = (showingMappedEntry) ->
     #currentText = $('#task-notes').val()
     #currentText = currentText.concat(' - #', $scope.form_task.tpstory)
     #$('#task-notes').val(currentText)
@@ -157,6 +163,11 @@ tasks_controller = ($scope) ->
     $('#task-notes').val(window.strProject + window.strStory)
     $scope.form_spinner_visible = true
     $scope.tasksForStory = []
+
+    if not showingMappedEntry
+        $scope.form_task.tptask =
+            selected: undefined
+    
     tpClient = $scope.theClient
     tpTasks = tpClient.getTasks $scope.form_task.tpstory.selected.Id
     #storyTitle = $('#tp-story-select option:selected').text()
@@ -198,6 +209,14 @@ tasks_controller = ($scope) ->
             $scope.form_spinner_visible = false
             $scope.$apply()
             return
+
+  $scope.set_task_notes = ->
+    # Possible future implementation placeholder
+    projectId = $scope.form_task.tpproject.selected.Id
+    storyId = $scope.form_task.tpstory.selected.Id
+    taskId = $scope.form_task.tptask.selected.Id
+    currentNotes = $('#task-notes').val()
+    return    
 
   $scope.toggle_timer = (timer_id) ->
     $scope.table_spinner_visible = true
@@ -294,9 +313,9 @@ tasks_controller = ($scope) ->
                 selected: mapEntry.tpTask.selected
 
             # trigger change
-            $scope.tp_project_change()
-            $scope.story_change()
-            $scope.task_change()
+            $scope.tp_project_change(true)
+            $scope.story_change(true)
+            $scope.task_change(true)
            
             $('#task-notes').val(timer.notes)
     $scope.form_visible = true

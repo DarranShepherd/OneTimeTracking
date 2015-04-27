@@ -135,13 +135,13 @@
                     <ui-select id="tp-project-select"
                                name="tp-project-select"
                                ng-model="form_task.tpproject.selected"
-                               ng-change="tp_project_change()"
+                               ng-change="tp_project_change(false)"
                                theme="select2"
                                style="width: 250px;"
                                ng-disabled="disabled">
                         <ui-select-match placeholder="Select a project...">{{$select.selected.Name}}</ui-select-match>
                         <ui-select-choices repeat="project in tpProjects | filter: $select.search">
-                            {{project.Name}}
+                            <span ng-bind-html="project.Name | highlight:$select.search"></span>
                         </ui-select-choices>
                     </ui-select>
                 </p>
@@ -150,13 +150,13 @@
                     <ui-select id="tp-story-select"
                                name="tp-story-select"
                                ng-model="form_task.tpstory.selected"
-                               ng-change="story_change()"
+                               ng-change="story_change(false)"
                                theme="select2"
                                style="width: 250px;"
                                ng-disabled="disabled">
                         <ui-select-match placeholder="Select a story...">{{$select.selected.Name}}</ui-select-match>
                         <ui-select-choices repeat="story in storiesForProject | filter: $select.search">
-                            {{story.Name}}
+                            <span ng-bind-html="story.Name | highlight:$select.search"></span>
                         </ui-select-choices>
                     </ui-select>
                 </p>
@@ -171,7 +171,7 @@
                                ng-disabled="disabled">
                         <ui-select-match placeholder="Select a task...">{{$select.selected.Name}}</ui-select-match>
                         <ui-select-choices repeat="task in tasksForStory | filter: $select.search">
-                            <span style="color: {{getColour(task)}}">{{task.Name}}</span>
+                            <span ng-bind-html="task.Name | highlight:$select.search" style="color: {{getColour(task)}}"></span>
                         </ui-select-choices>
                     </ui-select>
                 </p>

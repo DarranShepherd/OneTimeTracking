@@ -58,16 +58,41 @@ class BackgroundApplication
         add_timer: =>
           tpTaskTimerId=0
           retrievedObject = localStorage.getItem('tempTpmap')
-          #@todays_entry_tp_map = JSON.parse(retrievedObject) if retrievedObject !=null
+          taskChanged = false
+
           if retrievedObject !=null
             @todays_entry_tp_map = JSON.parse(retrievedObject)
             if request.active_timer_id != 0
-             mapEntry = _(@todays_entry_tp_map).find (item) -> item.timerId == request.active_timer_id
-             tpTaskTimerId = mapEntry.tpTaskTimerId
+                mapEntry = _(@todays_entry_tp_map).find (item) -> item.timerId == request.active_timer_id
+                taskChanged = true if mapEntry.tpTask.selected.Id != request.task.tpTask.selected.Id
+                (
+                    #console.log('the req is')
+                    #console.log(request)
+                    #console.log(mapEntry)
+                    #return
+                    #remove orginal TP time entry
+                    @tpClient.delete_entry (mapEntry.tpTaskTimerId)
+                    
+                    # update map entry here
+                    mapEntry.tpProject = request.task.tpProject
+                    mapEntry.tpStory = request.task.tpStory
+                    mapEntry.tpTask = request.task.tpTask
+                    
+                ) if taskChanged and mapEntry.tpTaskTimerId != 0
+                tpTaskTimerId = mapEntry.tpTaskTimerId
           if request.active_timer_id != 0
             result = @client.update_entry request.active_timer_id, request.task, @todays_entry_tp_map, send_json_response
-            if tpTaskTimerId != 0
-              @tpClient.update_entry request.active_timer_id, tpTaskTimerId, request.task, @todays_entry_tp_map, send_json_response
+            #if tpTaskTimerId != 0
+            #  @tpClient.update_entry request.active_timer_id, tpTaskTimerId, request.task, @todays_entry_tp_map, send_json_response
+            (
+                # check if the task ID has changed
+                if taskChanged
+                    # Add Entry
+                    @tpClient.postTime request.task, request.active_timer_id, @todays_entry_tp_map, true
+                else
+                    # Update Entry
+                    @tpClient.update_entry request.active_timer_id, tpTaskTimerId, request.task, @todays_entry_tp_map, send_json_response
+            ) if tpTaskTimerId != 0
           else
             result = @client.add_entry request.task, @todays_entry_tp_map, send_json_response
           return
