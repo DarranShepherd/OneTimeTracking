@@ -169,6 +169,7 @@ class BackgroundApplication
     @preferences           = {}
     @timer_running         = false
     @todays_entry_tp_map   = []
+    @modifiedBadgeBackground = ''
 
     chrome.browserAction.setTitle title: "One Time Tracking"
     register_message_listeners.call this
@@ -203,14 +204,23 @@ class BackgroundApplication
 
   # Instance Methods
   get_preferences: (callback = $.noop) ->
+    console.log 'Getting preferences'
     BackgroundApplication.get_preferences (items) =>
       @preferences = items.hayfever_prefs || {}
       callback(items)
 
-  set_badge: =>
+  set_badge: (theTimer) =>
     @get_preferences()
     prefs = @preferences
     badge_color = $.hexColorToRGBA prefs.badge_color
+
+    if theTimer?
+        progress = parseFloat(theTimer.progress)
+        @modifiedBadgeBackground = ''
+        if(progress >= 50)
+            @modifiedBadgeBackground = '#FF6A00'
+        if(progress >= 80)
+            @modifiedBadgeBackground = '#000000'
 
     switch prefs.badge_display
       when 'current'
@@ -232,6 +242,7 @@ class BackgroundApplication
 
   refresh_hours: (callback = $.noop) =>
     console.debug 'refreshing hours'
+    
     @get_preferences()
     prefs        = @preferences
     todays_hours = @client.get_today()
@@ -251,6 +262,7 @@ class BackgroundApplication
 
       @projects = json.projects
       @todays_entries = json.day_entries
+      currentlyRunningTimer = null
 
       # Add up total hours by looping thru timesheet entries
       $.each @todays_entries, (i, v) =>
@@ -263,7 +275,24 @@ class BackgroundApplication
           current_hours = parseFloat(v.hours)
           v.running = true
           @current_task = v
-
+        
+        # Get entry from map
+        existingTask = _.find @todays_entry_tp_map, (map) -> map.timerId == v.id
+        if existingTask?
+            # Get effort detail
+            effortDetails = existingTask.tpTask.selected.EffortDetail
+            # Properties are v.hours, effortDetails.TimeSpent, effortDetail.TimeRemain, v.progress
+            # calculate progress on the basis of hours spent and allocated
+            timeAlreadySpent = parseFloat(effortDetails.TimeSpent)
+            spent = parseFloat(v.hours)
+            totalSpent = timeAlreadySpent + spent
+            remaining = parseFloat(effortDetails.TimeRemain)
+            actualRemaining = if remaining - spent < 0 then 0 else remaining - spent
+            progress = totalSpent / (totalSpent+actualRemaining)
+            progress = progress * 100
+            progress = progress.toFixed(0)
+            v.progress = progress
+            currentlyRunningTimer = v
         @todays_entries[i] = v
       @total_hours = total_hours
 
@@ -279,7 +308,7 @@ class BackgroundApplication
         chrome.browserAction.setTitle title: 'One Time Tracking'
         @stop_badge_flash() if @badge_flash_interval isnt 0
 
-      @set_badge()
+      @set_badge(currentlyRunningTimer)
       callback.call(@todays_entries)
 
     todays_hours.error (xhr, text_status, error_thrown) =>
@@ -292,7 +321,8 @@ class BackgroundApplication
         chrome.browserAction.setBadgeText text: '!'
 
   badge_color: (alpha) =>
-    color = $.hexColorToRGBA @preferences.badge_color, alpha
+    badgeBackgroundColor = if @modifiedBadgeBackground == '' then @preferences.badge_color else @modifiedBadgeBackground
+    color = $.hexColorToRGBA badgeBackgroundColor, alpha
     chrome.browserAction.setBadgeBackgroundColor color: color
 
   badge_flash: (alpha) =>
