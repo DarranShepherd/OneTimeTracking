@@ -37,17 +37,29 @@ tasks_controller = ($scope, $sanitize) ->
 
   # Grab background application data
   chrome.runtime.sendMessage { method: 'get_entries' }, (resp) ->
+    console.log(resp)
     (
        (
             # Get timer with same id
             existingTimer = _(resp.timers).find (item) -> item.id == mapEntry.timerId
             (
                 progress = 0
-                if mapEntry.tpTask.selected.EffortDetail? 
-                    progress = parseFloat(mapEntry.tpTask.selected.EffortDetail.Progress)
-                    progress = progress * 100
-                    progress = progress.toFixed(0)
-                    console.log(progress)
+                if mapEntry.tpTask.selected.EffortDetail?
+                    if existingTimer.running
+                        # calculate progress on the basis of hours spent and allocated
+                        effortDetails = mapEntry.tpTask.selected.EffortDetail
+                        timeAlreadySpent = parseFloat(effortDetails.TimeSpent)
+                        spent = parseFloat(existingTimer.hours)
+                        totalSpent = timeAlreadySpent + spent
+                        remaining = parseFloat(effortDetails.TimeRemain)
+                        actualRemaining = if remaining - spent < 0 then 0 else remaining - spent
+                        progress = totalSpent / (totalSpent+actualRemaining)
+                    else 
+                        progress = parseFloat(mapEntry.tpTask.selected.EffortDetail.Progress)
+                        
+                progress = progress * 100
+                progress = progress.toFixed(0)
+                #console.log(progress)
 
                 existingTimer.progress = progress
                 existingTimer.stopped = true if mapEntry.TimerStopped? and mapEntry.TimerStopped is true
@@ -85,11 +97,22 @@ tasks_controller = ($scope, $sanitize) ->
                 existingTimer = _(resp.timers).find (item) -> item.id == mapEntry.timerId
                 (
                     progress = 0
-                    if mapEntry.tpTask.selected.EffortDetail? 
-                        progress = parseFloat(mapEntry.tpTask.selected.EffortDetail.Progress)
-                        progress = progress * 100
-                        progress = progress.toFixed(0)
-                        console.log(progress)
+                    if mapEntry.tpTask.selected.EffortDetail?
+                        if existingTimer.running
+                            # calculate progress on the basis of hours spent and allocated
+                            effortDetails = mapEntry.tpTask.selected.EffortDetail
+                            timeAlreadySpent = parseFloat(effortDetails.TimeSpent)
+                            spent = parseFloat(existingTimer.hours)
+                            totalSpent = timeAlreadySpent + spent
+                            remaining = parseFloat(effortDetails.TimeRemain)
+                            actualRemaining = if remaining - spent < 0 then 0 else remaining - spent
+                            progress = totalSpent / (totalSpent+actualRemaining)
+                        else 
+                            progress = parseFloat(mapEntry.tpTask.selected.EffortDetail.Progress)
+                        
+                    progress = progress * 100
+                    progress = progress.toFixed(0)
+                    #console.log(progress)
 
                     existingTimer.progress = progress
                     existingTimer.stopped = true if mapEntry.TimerStopped? and mapEntry.TimerStopped is true
