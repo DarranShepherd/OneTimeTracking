@@ -174,8 +174,21 @@ tasks_controller = ($scope, $sanitize) ->
     #currentText = currentText.concat(' - ', storyTitle)
     tpTasks.success (json) =>
         tasks = json.Items
-        console.log(tasks)
-        $scope.tasksForStory.push({ Id: task.Id, Name: task.Name, EntityState: task.EntityState }) for task in tasks
+        
+        (
+            taskDetail =
+                Id: task.Id
+                Name: task.Name
+                EntityState: task.EntityState
+                EffortDetail:
+                    Effort: task.Effort
+                    EffortCompleted: task.EffortCompleted
+                    EffortToDo: task.EffortToDo
+                    Progress: task.Progress
+                    TimeSpent: task.TimeSpent
+                    TimeRemain: task.TimeRemain
+            $scope.tasksForStory.push taskDetail 
+        ) for task in tasks
         $scope.form_spinner_visible = false
         $scope.$apply()
         return
@@ -335,6 +348,11 @@ tasks_controller = ($scope, $sanitize) ->
   $scope.toggle_spinners = ->
     $scope.table_spinner_visible = !$scope.table_spinner_visible
     $scope.form_spinner_visible = !$scope.form_spinner_visible
+
+  $scope.updateTpRemaining = ->
+    existingRemaining = $scope.form_task.tptask.selected.EffortDetail.EffortToDo
+    newRemaining = existingRemaining - $scope.form_task.hours if existingRemaining > 0
+    $scope.form_task.tpremaining = newRemaining.toFixed(2) if newRemaining > 0
 
 clock_time_filter = ->
   (input) ->

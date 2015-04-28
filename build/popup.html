@@ -206,7 +206,7 @@
 
             <p>
                 <label for="task-hours">Hours</label>
-                <input type="text" id="task-hours" value="" name="task_hours" placeholder="0" ng-model="form_task.hours" size="4" />
+                <input type="text" id="task-hours" value="" name="task_hours" placeholder="0" ng-model="form_task.hours" size="4" ng-change="updateTpRemaining()" />
             </p>
             <p>
                 <label for="task-hours-remaining">Remaining</label>
