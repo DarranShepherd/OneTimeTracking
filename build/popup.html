@@ -28,6 +28,17 @@
         .select2-search > input[type=text] {
             width: 100% !important;
         }
+
+        .progress-popup {
+            height: 15px !important;
+        }
+
+        .progress-bar-popup {
+            line-height: 15px !important;
+            font-size: 10px !important;
+            font-weight: bolder !important;
+            color: black !important;
+        }
     </style>
 
 </head>
@@ -49,6 +60,11 @@
                     <strong>{{timer.code ? '[' + timer.code + ']' : ''}} {{timer.client}}</strong> {{timer.project}} ({{timer.task}})
                     <div class="notes" ng-if="prefs.show_task_notes">
                         <strong>Notes:</strong> <em>{{timer.notes}}</em>
+                    </div>
+                    <div class="progress progress-popup">
+                        <div class="progress-bar progress-bar-success progress-bar-striped progress-bar-popup" role="progressbar" aria-valuenow="{{timer.progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{timer.progress}}%">
+                            {{timer.progress}}%
+                        </div>
                     </div>
                 </td>
                 <td class="entry-hours" width="50" align="center">

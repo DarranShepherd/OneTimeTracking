@@ -121,15 +121,33 @@ class Harvest
     url       = build_url.call this, 'daily', 'add'
     #console.log 'Adding Entry'
     #console.log props
+    #return
     successFunction = (resultData, textStatus, jqXhr) ->
-        console.log resultData
+        taskDetail = props.tpTask
+        taskLogged = false
+        if props.hours != null
+            # get existing effort
+            effortDetails = props.tpTask.selected.EffortDetail
+            timeAlreadySpent = parseFloat(effortDetails.TimeSpent)
+            
+            taskDetail.selected.EffortDetail.TimeSpent = props.tpSpent
+            taskDetail.selected.EffortDetail.TimeRemain = props.tpRemaining
+            spent = parseFloat(props.tpSpent)
+            totalSpent = timeAlreadySpent + spent 
+            remaining = parseFloat(props.tpRemaining)
+            progress = totalSpent / (totalSpent+remaining)
+            taskDetail.selected.EffortDetail.Progress = progress.toFixed(2)
+            taskLogged = true
+        
         tpMap.push mapEntry =
             timerId: resultData.id
             tpProject: props.tpProject
             tpStory: props.tpStory
-            tpTask: props.tpTask
-            tpTaskTimerId:0
-        resultData.tpMap = tpMap        
+            tpTask: taskDetail
+            tpTaskTimerId: 0
+            TimerStopped: taskLogged
+            
+        resultData.tpMap = tpMap
         localStorage.setItem('tempTpmap', JSON.stringify(tpMap));
         if props.hours != null
          chrome.runtime.sendMessage

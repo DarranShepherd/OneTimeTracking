@@ -41,8 +41,20 @@ tasks_controller = ($scope, $sanitize) ->
        (
             # Get timer with same id
             existingTimer = _(resp.timers).find (item) -> item.id == mapEntry.timerId
-            existingTimer.stopped = true if existingTimer?
-       ) for mapEntry in resp.tpMap when mapEntry.TimerStopped? and mapEntry.TimerStopped is true
+            (
+                progress = 0
+                if mapEntry.tpTask.selected.EffortDetail? 
+                    progress = parseFloat(mapEntry.tpTask.selected.EffortDetail.Progress)
+                    progress = progress * 100
+                    progress = progress.toFixed(0)
+                    console.log(progress)
+
+                existingTimer.progress = progress
+                existingTimer.stopped = true if mapEntry.TimerStopped? and mapEntry.TimerStopped is true
+            ) if existingTimer?
+            
+
+       ) for mapEntry in resp.tpMap #when mapEntry.TimerStopped? and mapEntry.TimerStopped is true
     ) if resp.tpMap.length > 0
     
     $scope.harvest_url   = resp.harvest_url
@@ -59,34 +71,46 @@ tasks_controller = ($scope, $sanitize) ->
     $scope.theClient     = new TargetProcess(resp.tpClient.subdomain, resp.tpClient.auth_string)
     $scope.tpMap         = resp.tpMap
     $scope.$apply()
-    #console.debug "Response"
-    #console.debug resp
-    # console.debug resp.projects
+    console.debug "Get Entries"
+    console.debug $scope.timers
+    console.debug $scope.tpMap
 
   $scope.refresh = ->
     $scope.table_spinner_visible = true
     
     chrome.runtime.sendMessage { method: 'refresh_hours' }, (resp) ->
-      (
-          (
-              # Get timer with same id
-              existingTimer = _(resp.timers).find (item) -> item.id == mapEntry.timerId
-              existingTimer.stopped = true if existingTimer?
-          ) for mapEntry in resp.tpMap when mapEntry.TimerStopped? and mapEntry.TimerStopped is true
-      ) if resp.tpMap.length > 0
-      $scope.harvest_url   = resp.harvest_url
-      $scope.authorized    = resp.authorized
-      $scope.projects      = resp.projects
-      $scope.clients       = resp.clients
-      $scope.timers        = resp.timers
-      $scope.current_hours = resp.current_hours
-      $scope.prefs         = resp.preferences
-      $scope.total_hours   = resp.total_hours
-      $scope.current_task  = resp.current_task
-      $scope.tpProjects    = resp.tpProjects
-      $scope.theClient     = new TargetProcess(resp.tpClient.subdomain, resp.tpClient.auth_string)
-      $scope.tpMap         = resp.tpMap
-      $scope.$apply()
+        (
+           (
+                # Get timer with same id
+                existingTimer = _(resp.timers).find (item) -> item.id == mapEntry.timerId
+                (
+                    progress = 0
+                    if mapEntry.tpTask.selected.EffortDetail? 
+                        progress = parseFloat(mapEntry.tpTask.selected.EffortDetail.Progress)
+                        progress = progress * 100
+                        progress = progress.toFixed(0)
+                        console.log(progress)
+
+                    existingTimer.progress = progress
+                    existingTimer.stopped = true if mapEntry.TimerStopped? and mapEntry.TimerStopped is true
+                ) if existingTimer?
+            
+
+           ) for mapEntry in resp.tpMap #when mapEntry.TimerStopped? and mapEntry.TimerStopped is true
+        ) if resp.tpMap.length > 0
+        $scope.harvest_url   = resp.harvest_url
+        $scope.authorized    = resp.authorized
+        $scope.projects      = resp.projects
+        $scope.clients       = resp.clients
+        $scope.timers        = resp.timers
+        $scope.current_hours = resp.current_hours
+        $scope.prefs         = resp.preferences
+        $scope.total_hours   = resp.total_hours
+        $scope.current_task  = resp.current_task
+        $scope.tpProjects    = resp.tpProjects
+        $scope.theClient     = new TargetProcess(resp.tpClient.subdomain, resp.tpClient.auth_string)
+        $scope.tpMap         = resp.tpMap
+        $scope.$apply()
 
     chrome.runtime.sendMessage { method: 'get_preferences' }, (resp) ->
       $scope.prefs                 = resp.preferences
@@ -209,6 +233,10 @@ tasks_controller = ($scope, $sanitize) ->
       
       $scope.form_spinner_visible = true
       tpClient = $scope.theClient
+      
+      console.log('tptaskdetail')
+      console.log($scope.form_task.tptask)
+      
       tpTaskDetail  = tpClient.getTaskDetail $scope.form_task.tptask.selected.Id
 
       tpTaskDetail.success (json) =>
@@ -350,9 +378,11 @@ tasks_controller = ($scope, $sanitize) ->
     $scope.form_spinner_visible = !$scope.form_spinner_visible
 
   $scope.updateTpRemaining = ->
+    # Potential calculation for future
+    return
     existingRemaining = $scope.form_task.tptask.selected.EffortDetail.EffortToDo
     newRemaining = existingRemaining - $scope.form_task.hours if existingRemaining > 0
-    $scope.form_task.tpremaining = newRemaining.toFixed(2) if newRemaining > 0
+    if newRemaining > 0 then $scope.form_task.tpremaining = newRemaining.toFixed(2) else $scope.form_task.tpremaining = 0
 
 clock_time_filter = ->
   (input) ->
