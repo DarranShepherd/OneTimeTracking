@@ -120,10 +120,10 @@ class BackgroundApplication
             return
           ###
         add_tp_timer: =>
-          @tpClient.postTime(request.task, request.timer_id, request.tpMap, true)
+          @tpClient.postTime(request.task, request.timer_id, request.tpMap, true, request.oneShot)
         stop_timer: =>
           #@tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
-          @tpClient.postTime request.task, request.timer_id, @todays_entry_tp_map, true
+          @tpClient.postTime request.task, request.timer_id, @todays_entry_tp_map, true, false
           result = @client.stop_timer request.timer_id, request.task, request.running, @todays_entry_tp_map, send_json_response
           if request.running
               result = @client.toggle_timer request.timer_id
@@ -218,7 +218,7 @@ class BackgroundApplication
         progress = parseFloat(theTimer.progress)
         @modifiedBadgeBackground = ''
         if(progress >= 50)
-            @modifiedBadgeBackground = '#FF6A00'
+            @modifiedBadgeBackground = '#FF0000'
         if(progress >= 80)
             @modifiedBadgeBackground = '#000000'
 
