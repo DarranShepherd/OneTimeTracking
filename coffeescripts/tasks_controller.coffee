@@ -43,9 +43,10 @@ tasks_controller = ($scope, $sanitize) ->
             # Get timer with same id
             existingTimer = _(resp.timers).find (item) -> item.id == mapEntry.timerId
             (
+                
                 progress = 0
                 if mapEntry.tpTask.selected.EffortDetail?
-                    if existingTimer.running
+                    if existingTimer.running or mapEntry.TimerStopped is false
                         # calculate progress on the basis of hours spent and allocated
                         effortDetails = mapEntry.tpTask.selected.EffortDetail
                         timeAlreadySpent = parseFloat(effortDetails.TimeSpent)
@@ -64,9 +65,7 @@ tasks_controller = ($scope, $sanitize) ->
                 existingTimer.progress = progress
                 existingTimer.stopped = true if mapEntry.TimerStopped? and mapEntry.TimerStopped is true
             ) if existingTimer?
-            
-
-       ) for mapEntry in resp.tpMap #when mapEntry.TimerStopped? and mapEntry.TimerStopped is true
+       ) for mapEntry in resp.tpMap
     ) if resp.tpMap.length > 0
     
     $scope.harvest_url   = resp.harvest_url
@@ -84,8 +83,8 @@ tasks_controller = ($scope, $sanitize) ->
     $scope.tpMap         = resp.tpMap
     $scope.$apply()
     console.debug "Get Entries"
-    console.debug $scope.timers
-    console.debug $scope.tpMap
+    #console.debug $scope.timers
+    #console.debug $scope.tpMap
 
   $scope.refresh = ->
     $scope.table_spinner_visible = true
@@ -98,7 +97,7 @@ tasks_controller = ($scope, $sanitize) ->
                 (
                     progress = 0
                     if mapEntry.tpTask.selected.EffortDetail?
-                        if existingTimer.running
+                        if existingTimer.running or mapEntry.TimerStopped is false
                             # calculate progress on the basis of hours spent and allocated
                             effortDetails = mapEntry.tpTask.selected.EffortDetail
                             timeAlreadySpent = parseFloat(effortDetails.TimeSpent)

@@ -67,8 +67,19 @@ class @TPClient.TargetProcess
       mapEntry = (tpMap).find (item) -> item.timerId == timerId
 
       #console.log('Into Success Func')
-      #console.log(mapEntry)
-      #console.log(tpMap)           
+      #console.log(resultData)
+      
+      if isStopped
+        # calculate and assign progress in tpMap
+        effortDetails = mapEntry.tpTask.selected.EffortDetail
+        timeAlreadySpent = parseFloat(effortDetails.TimeSpent)
+        currentSpend = parseFloat(task.hours)
+        totalSpent = timeAlreadySpent + currentSpend
+        remaining = parseFloat(task.tpRemaining)
+        actualRemaining = if remaining - currentSpend < 0 then 0 else remaining - currentSpend
+        progress = totalSpent / (totalSpent+actualRemaining)
+        mapEntry.tpTask.selected.EffortDetail.Progress = progress.toFixed(2)
+      
       mapEntry.tpTaskTimerId = resultData.Id
       mapEntry.TimerStopped = isStopped
       resultData.tpMap = mapEntry
