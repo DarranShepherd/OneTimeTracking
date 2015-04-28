@@ -125,6 +125,7 @@ class Harvest
     successFunction = (resultData, textStatus, jqXhr) ->
         taskDetail = props.tpTask
         taskLogged = false
+        oneShotEntry = false
         if props.hours != null
             # get existing effort
             effortDetails = props.tpTask.selected.EffortDetail
@@ -138,6 +139,7 @@ class Harvest
             progress = totalSpent / (totalSpent+remaining)
             taskDetail.selected.EffortDetail.Progress = progress.toFixed(2)
             taskLogged = true
+            oneShotEntry = true
         
         tpMap.push mapEntry =
             timerId: resultData.id
@@ -155,6 +157,7 @@ class Harvest
           timer_id: resultData.id
           task: props
           tpMap: tpMap
+          oneShot: oneShotEntry
 
         send_json_response resultData
         return

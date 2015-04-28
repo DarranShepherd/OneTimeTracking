@@ -77,7 +77,7 @@ class @TPClient.TargetProcess
     ajax_opts = $.extend ajax_opts, postOptions
     $.ajax ajax_opts
 
-  postTime: (task, timerId, tpMap, isStopped, send_json_response , ajax_opts = {}) ->
+  postTime: (task, timerId, tpMap, isStopped, oneShotEntry, send_json_response, ajax_opts = {}) ->
     return if not task.hours?
     time_url = @full_url + '/Times/'
     successFunction = (resultData, textStatus, jqXhr) ->
@@ -89,7 +89,7 @@ class @TPClient.TargetProcess
       if isStopped
         # calculate and assign progress in tpMap
         effortDetails = mapEntry.tpTask.selected.EffortDetail
-        timeAlreadySpent = parseFloat(effortDetails.TimeSpent)
+        timeAlreadySpent = if !oneShotEntry then parseFloat(effortDetails.TimeSpent) else 0
         currentSpend = parseFloat(task.hours)
         totalSpent = timeAlreadySpent + currentSpend
         remaining = parseFloat(task.tpRemaining)
