@@ -71,7 +71,7 @@
                     {{timer.hours}}
                 </td>
                 <td class="entry-toggle" align="center">
-                    <a href="#" class="stop-timer" ng-click="stop_timer(timer.id)">
+                    <a href="#" class="stop-timer" ng-click="stop_timer(timer.id)" ng-hide="timer.stopped">
                         <span class="fa fa-stop"></span>
                     </a>
                     <a href="#" class="toggle-timer" ng-click="toggle_timer(timer.id)" ng-hide="timer.stopped">
