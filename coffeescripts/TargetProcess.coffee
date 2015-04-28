@@ -43,6 +43,23 @@ class @TPClient.TargetProcess
 
   update_entry: (eid, tpTaskTimerId, props, tpMap, send_json_response, ajax_opts = {}) ->
     update_url = this.full_url + '/times.asmx/?skip=0&take=999&resultInclude=[id]'
+    
+    #console.log props
+    mapEntry = (tpMap).find (item) -> item.timerId == eid
+    if mapEntry?
+        # calculate and assign progress in tpMap
+        effortDetails = mapEntry.tpTask.selected.EffortDetail
+        timeAlreadySpent = parseFloat(effortDetails.TimeSpent)
+        currentSpend = parseFloat(props.hours)
+        totalSpent = timeAlreadySpent + currentSpend
+        remaining = parseFloat(props.tpRemaining)
+        actualRemaining = remaining
+        progress = totalSpent / (totalSpent+actualRemaining)
+        #console.log('The Progress')
+        #console.log(progress)
+        mapEntry.tpTask.selected.EffortDetail.Progress = progress.toFixed(2)
+        localStorage.setItem('tempTpmap', JSON.stringify(tpMap))    
+    
     time_entry =
         id: tpTaskTimerId
         spent: props.hours
