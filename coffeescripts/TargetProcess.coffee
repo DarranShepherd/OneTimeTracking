@@ -97,6 +97,8 @@ class @TPClient.TargetProcess
         progress = totalSpent / (totalSpent+actualRemaining)
         mapEntry.tpTask.selected.EffortDetail.Progress = progress.toFixed(2)
       
+      mapEntry.hours = task.hours
+      mapEntry.tpRemaining = task.tpRemaining
       mapEntry.tpTaskTimerId = resultData.Id
       mapEntry.TimerStopped = isStopped
       resultData.tpMap = mapEntry

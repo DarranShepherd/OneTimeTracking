@@ -257,16 +257,19 @@ tasks_controller = ($scope, $sanitize) ->
       $scope.form_spinner_visible = true
       tpClient = $scope.theClient
       
-      console.log('tptaskdetail')
-      console.log($scope.form_task.tptask)
+      #console.log('tptaskdetail')
+      #console.log($scope.form_task.tptask)
+      #console.log($scope.form_task)
       
       tpTaskDetail  = tpClient.getTaskDetail $scope.form_task.tptask.selected.Id
 
       tpTaskDetail.success (json) =>
             taskDetail = json
 
-            timeRemainUpdated = if $scope.form_task.hours != null then (if (taskDetail.TimeRemain - $scope.form_task.hours) > 0 then (taskDetail.TimeRemain - $scope.form_task.hours) else 0) else taskDetail.TimeRemain
-            timeRemainUpdated = +(Math.round(timeRemainUpdated + "e+2")  + "e-2")
+            timeRemainUpdated = $scope.form_task.tpremaining
+            if $scope.form_task.currentTimer? and !$scope.form_task.currentTimer.stopped
+                timeRemainUpdated = if $scope.form_task.hours != null then (if (taskDetail.TimeRemain - $scope.form_task.hours) > 0 then (taskDetail.TimeRemain - $scope.form_task.hours) else 0) else taskDetail.TimeRemain
+                timeRemainUpdated = +(Math.round(timeRemainUpdated + "e+2")  + "e-2")
             $('#task-hours-remaining').val(timeRemainUpdated)
             $scope.form_task.tpremaining = timeRemainUpdated
 
@@ -358,7 +361,7 @@ tasks_controller = ($scope, $sanitize) ->
 
       if timer
         
-        # console.log timer
+        #console.log timer
         $scope.form_task.currentTimer = timer
         $scope.form_task.project = parseInt timer.project_id, 10
         $scope.form_task.task = parseInt timer.task_id, 10
@@ -376,6 +379,7 @@ tasks_controller = ($scope, $sanitize) ->
                 selected: mapEntry.tpStory.selected
             $scope.form_task.tptask =
                 selected: mapEntry.tpTask.selected
+            $scope.form_task.tpremaining = mapEntry.tpRemaining
 
             # trigger change
             $scope.tp_project_change(true)
