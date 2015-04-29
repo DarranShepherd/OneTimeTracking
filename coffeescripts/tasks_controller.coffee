@@ -6,7 +6,7 @@ app = angular.module 'hayfeverApp', [ 'ngAnimate', 'ngSanitize', 'ui.select' ]
 
 tasks_controller = ($scope, $sanitize) ->
   # DEBUG MODE: set this to true to show debug content in popup
-  $scope.debug_mode            = false
+  $scope.debug_mode            = true
 
   $scope.form_visible          = false
   $scope.table_spinner_visible = false
@@ -257,9 +257,9 @@ tasks_controller = ($scope, $sanitize) ->
       $scope.form_spinner_visible = true
       tpClient = $scope.theClient
       
-      #console.log('tptaskdetail')
-      #console.log($scope.form_task.tptask)
-      #console.log($scope.form_task)
+      console.log('tptaskdetail')
+      console.log($scope.form_task.tptask)
+      console.log($scope.form_task)
       
       tpTaskDetail  = tpClient.getTaskDetail $scope.form_task.tptask.selected.Id
 
@@ -267,9 +267,10 @@ tasks_controller = ($scope, $sanitize) ->
             taskDetail = json
 
             timeRemainUpdated = $scope.form_task.tpremaining
-            if $scope.form_task.currentTimer? and !$scope.form_task.currentTimer.stopped
+            if ($scope.form_task.currentTimer? and !$scope.form_task.currentTimer.stopped) or $scope.active_timer_id == 0
                 timeRemainUpdated = if $scope.form_task.hours != null then (if (taskDetail.TimeRemain - $scope.form_task.hours) > 0 then (taskDetail.TimeRemain - $scope.form_task.hours) else 0) else taskDetail.TimeRemain
                 timeRemainUpdated = +(Math.round(timeRemainUpdated + "e+2")  + "e-2")
+            
             $('#task-hours-remaining').val(timeRemainUpdated)
             $scope.form_task.tpremaining = timeRemainUpdated
 
@@ -360,7 +361,6 @@ tasks_controller = ($scope, $sanitize) ->
       timer = _($scope.timers).find (item) -> item.id == $scope.active_timer_id
 
       if timer
-        
         #console.log timer
         $scope.form_task.currentTimer = timer
         $scope.form_task.project = parseInt timer.project_id, 10
@@ -370,7 +370,6 @@ tasks_controller = ($scope, $sanitize) ->
         $scope.project_change()
 
         # Now show the tpThings
-
         mapEntry = _($scope.tpMap).find (item) -> item.timerId == timer_id
         if mapEntry and mapEntry.tpProject?
             $scope.form_task.tpproject = 

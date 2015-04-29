@@ -66,19 +66,15 @@ class BackgroundApplication
                 mapEntry = _(@todays_entry_tp_map).find (item) -> item.timerId == request.active_timer_id
                 taskChanged = true if mapEntry.tpTask.selected.Id != request.task.tpTask.selected.Id
                 (
-                    #console.log('the req is')
-                    #console.log(request)
-                    #console.log(mapEntry)
-                    #return
                     #remove orginal TP time entry
-                    @tpClient.delete_entry (mapEntry.tpTaskTimerId)
+                    if mapEntry.tpTaskTimerId != 0
+                        @tpClient.delete_entry (mapEntry.tpTaskTimerId)
                     
                     # update map entry here
                     mapEntry.tpProject = request.task.tpProject
                     mapEntry.tpStory = request.task.tpStory
                     mapEntry.tpTask = request.task.tpTask
-                    
-                ) if taskChanged and mapEntry.tpTaskTimerId != 0
+                ) if taskChanged
                 tpTaskTimerId = mapEntry.tpTaskTimerId
           if request.active_timer_id != 0
             result = @client.update_entry request.active_timer_id, request.task, @todays_entry_tp_map, send_json_response
@@ -153,6 +149,7 @@ class BackgroundApplication
         false
 
   constructor: (@subdomain, @auth_string, @tp_subdomain, @tp_auth_string) ->
+    @debugMode             = false
     @client                = new Harvest(@subdomain, @auth_string)
     @tpClient              = new TargetProcess(@tp_subdomain, @tp_auth_string)
     @version               = '0.3.6'
@@ -178,7 +175,7 @@ class BackgroundApplication
     retrievedObject = localStorage.getItem('tempTpmap')
     @todays_entry_tp_map = JSON.parse(retrievedObject) if retrievedObject !=null and this.todays_entry_tp_map.length == 0
 
-  # Class Methods
+  # Class Methods    
   @get_auth_data: (callback) ->
     chrome.storage.local.get [ 'harvest_subdomain', 'harvest_auth_string', 'harvest_username', 'tp_subdomain', 'tp_username', 'tp_auth_string' ], (items) ->
       callback(items)
@@ -203,8 +200,11 @@ class BackgroundApplication
       callback(options)
 
   # Instance Methods
+  debugLog: (messageToLog) ->
+    console.log (messageToLog) if @debugMode is true
+  
   get_preferences: (callback = $.noop) ->
-    console.log 'Getting preferences'
+    @debugLog 'Getting preferences'
     BackgroundApplication.get_preferences (items) =>
       @preferences = items.hayfever_prefs || {}
       callback(items)
@@ -236,12 +236,12 @@ class BackgroundApplication
   tp_get_stories: (tpProjectId) =>
     tpStories = @tpClient.getStories(tpProjectId)
     tpStories.success (json) =>
-        console.log 'Stories'
-        console.log json
+        @debugLog 'Stories'
+        @debugLog json
         return
 
   refresh_hours: (callback = $.noop) =>
-    console.debug 'refreshing hours'
+    @debugLog 'refreshing hours'
     
     @get_preferences()
     prefs        = @preferences
