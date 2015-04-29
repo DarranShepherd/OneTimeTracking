@@ -63,7 +63,7 @@
                     </div>
                     <div class="progress progress-popup">
                         <div class="progress-bar progress-bar-success progress-bar-striped progress-bar-popup" role="progressbar" aria-valuenow="{{timer.progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{timer.progress}}%">
-                            {{timer.progress}}%
+                            {{ getActualProgress(timer.progress) }}%
                         </div>
                     </div>
                 </td>

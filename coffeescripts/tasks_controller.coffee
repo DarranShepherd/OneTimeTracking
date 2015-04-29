@@ -408,6 +408,9 @@ tasks_controller = ($scope, $sanitize) ->
     newRemaining = existingRemaining - $scope.form_task.hours if existingRemaining > 0
     if newRemaining > 0 then $scope.form_task.tpremaining = newRemaining.toFixed(2) else $scope.form_task.tpremaining = 0
 
+  $scope.getActualProgress = (progress) ->
+    if Number.isFinite(Number(progress)) then progress else '';
+
 clock_time_filter = ->
   (input) ->
     input.toClockTime()
