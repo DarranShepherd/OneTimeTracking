@@ -33,6 +33,7 @@ tasks_controller = ($scope, $sanitize) ->
     tptask:
         selected: undefined
     tpremaining: null
+    currentTimer: null
   # console.debug $scope.form_visible
 
   # Grab background application data
@@ -358,6 +359,7 @@ tasks_controller = ($scope, $sanitize) ->
       if timer
         
         # console.log timer
+        $scope.form_task.currentTimer = timer
         $scope.form_task.project = parseInt timer.project_id, 10
         $scope.form_task.task = parseInt timer.task_id, 10
         $scope.form_task.hours = timer.hours

@@ -222,11 +222,11 @@
 
             <p>
                 <label for="task-hours">Hours</label>
-                <input type="text" id="task-hours" value="" name="task_hours" placeholder="0" ng-model="form_task.hours" size="4" ng-change="updateTpRemaining()" />
+                <input type="text" id="task-hours" value="" name="task_hours" placeholder="0" ng-model="form_task.hours" size="4" ng-change="updateTpRemaining()" ng-disabled="form_task.currentTimer.stopped" />
             </p>
             <p>
                 <label for="task-hours-remaining">Remaining</label>
-                <input type="text" id="task-hours-remaining" value="" name="task-hours-remaining" placeholder="0" ng-model="form_task.tpremaining" size="4"  />
+                <input type="text" id="task-hours-remaining" value="" name="task-hours-remaining" placeholder="0" ng-model="form_task.tpremaining" size="4" ng-disabled="form_task.currentTimer.stopped" />
             </p>
             <div ng-show="remainingRequired">
                 <label>&nbsp;</label>
