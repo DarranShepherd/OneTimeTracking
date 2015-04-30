@@ -277,15 +277,18 @@ class BackgroundApplication
         @todays_entries[i] = v
       @total_hours = total_hours
 
+      #console.log('Todays Entries')
+      #console.log(@todays_entries)
+
       if typeof current_hours is 'number'
         @current_hours = current_hours
-        @timer_running = true
+        #@timer_running = true if v.hasOwnProperty('timer_started_at') and v.timer_started_at
         chrome.browserAction.setTitle
           title: "Currently working on: #{@current_task.client} - #{@current_task.project}"
         @start_badge_flash() if @badge_flash_interval is 0 and prefs.badge_blink
       else
         @current_hours = 0.0
-        @timer_running = false
+        #@timer_running = false
         chrome.browserAction.setTitle title: 'One Time Tracking'
         @stop_badge_flash() if @badge_flash_interval isnt 0
 

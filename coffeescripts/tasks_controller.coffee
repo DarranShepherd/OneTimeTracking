@@ -7,7 +7,6 @@ app = angular.module 'hayfeverApp', [ 'ngAnimate', 'ngSanitize', 'ui.select' ]
 tasks_controller = ($scope, $sanitize) ->
   # DEBUG MODE: set this to true to show debug content in popup
   $scope.debug_mode            = true
-
   $scope.form_visible          = false
   $scope.table_spinner_visible = false
   $scope.form_spinner_visible  = false
@@ -21,6 +20,7 @@ tasks_controller = ($scope, $sanitize) ->
   $scope.tpMap                 = []
   $scope.stoppingTimer         = false
   $scope.remainingRequired     = false
+  $scope.stoppingAndLoggingTimer = false
   $scope.form_task             =
     project: null
     task: null
@@ -38,7 +38,7 @@ tasks_controller = ($scope, $sanitize) ->
 
   # Grab background application data
   chrome.runtime.sendMessage { method: 'get_entries' }, (resp) ->
-    console.log(resp)
+    #console.log(resp)
     (
        (
             # Get timer with same id
@@ -64,7 +64,11 @@ tasks_controller = ($scope, $sanitize) ->
                 #console.log(progress)
 
                 existingTimer.progress = progress
-                existingTimer.stopped = true if mapEntry.TimerStopped? and mapEntry.TimerStopped is true
+                existingTimer.progress = progress
+                (
+                    existingTimer.stopped = true 
+                    existingTimer.running = false
+                ) if mapEntry.TimerStopped? and mapEntry.TimerStopped is true
             ) if existingTimer?
        ) for mapEntry in resp.tpMap
     ) if resp.tpMap.length > 0
@@ -95,6 +99,8 @@ tasks_controller = ($scope, $sanitize) ->
            (
                 # Get timer with same id
                 existingTimer = _(resp.timers).find (item) -> item.id == mapEntry.timerId
+                # existingTimer.running = false if $scope.stoppingAndLoggingTimer
+                $scope.stoppingAndLoggingTimer = false
                 (
                     progress = 0
                     if mapEntry.tpTask.selected.EffortDetail?
@@ -115,7 +121,10 @@ tasks_controller = ($scope, $sanitize) ->
                     #console.log(progress)
 
                     existingTimer.progress = progress
-                    existingTimer.stopped = true if mapEntry.TimerStopped? and mapEntry.TimerStopped is true
+                    (
+                        existingTimer.stopped = true 
+                        existingTimer.running = false
+                    ) if mapEntry.TimerStopped? and mapEntry.TimerStopped is true
                 ) if existingTimer?
             
 
@@ -350,6 +359,7 @@ tasks_controller = ($scope, $sanitize) ->
             #console.log resp.tpMap
             $scope.tpMap = resp.tpMap
             $scope.form_spinner_visible = false
+            $scope.stoppingAndLoggingTimer = true
             $scope.hide_form()
             $scope.refresh()
     return
