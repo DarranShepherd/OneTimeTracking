@@ -339,6 +339,7 @@ tasks_controller = ($scope, $sanitize) ->
       tpSpent: $scope.form_task.hours
       tpRemaining: $scope.form_task.tpremaining
       entryDate: (new Date()).toJSON()
+    
     chrome.runtime.sendMessage
         method: 'stop_timer'
         timer_id: $scope.active_timer_id

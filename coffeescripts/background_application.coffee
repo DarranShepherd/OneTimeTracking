@@ -92,40 +92,18 @@ class BackgroundApplication
           else
             result = @client.add_entry request.task, @todays_entry_tp_map, send_json_response
           return
-          # retrievedObject = localStorage.getItem('tempTpmap')
-          # @todays_entry_tp_map = JSON.parse(retrievedObject) if retrievedObject !=null
-          # #@tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
-          # if request.active_timer_id != 0
-          #   result = @client.update_entry request.active_timer_id, request.task, @todays_entry_tp_map, send_json_response
-          # else
-          #   result = @client.add_entry request.task, @todays_entry_tp_map, send_json_response
-          # return
-          #
-          # this is now moved to client's add entry function
-          ###
-          result.success (resultData, textStatus, jqXhr) ->
-            # console.log(@todays_entry_tp_map)
-            jsonData = $.extend(resultData, request.task)
-            # mapEntry = @todays_entry_tp_map.find (item) -> item.id == resultData.
-            try
-                @todays_entry_tp_map.push ({ a: '10' })
-                console.log todays_entry_tp_map
-            catch e
-                console.log(e)
-            send_json_response resultData
-            return
-          ###
         add_tp_timer: =>
           @tpClient.postTime(request.task, request.timer_id, request.tpMap, true, request.oneShot)
         stop_timer: =>
           #@tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
           @tpClient.postTime request.task, request.timer_id, @todays_entry_tp_map, true, false
           result = @client.stop_timer request.timer_id, request.task, request.running, @todays_entry_tp_map, send_json_response
+          ###
           if request.running
               result = @client.toggle_timer request.timer_id
               result.complete send_json_response
+          ###
           return
-          # result.complete send_json_response
         toggle_timer: =>
           result = @client.toggle_timer request.timer_id
           result.complete send_json_response
@@ -274,6 +252,9 @@ class BackgroundApplication
         if v.hasOwnProperty('timer_started_at') and v.timer_started_at
           current_hours = parseFloat(v.hours)
           v.running = true
+          @current_task = v
+        else
+          v.running = false
           @current_task = v
         
         # Get entry from map

@@ -175,9 +175,16 @@ class Harvest
     #url = build_url.call this, 'daily', 'timer', String(eid)
     #ajax_opts = build_ajax_options.call this, ajax_opts
     #$.ajax url, ajax_opts
-
     url       = build_url.call this, 'daily', 'update', String(eid)
+    toggleUrl = build_url.call this, 'daily', 'timer', String(eid)
+    toggleOptions = build_ajax_options.call this, {}
+    
     successFunction = (resultData, textStatus, jqXhr) ->
+        # see here if it is running and then send toggle call
+        if running
+            # Toggling after update
+            $.ajax toggleUrl, toggleOptions
+    
         # check if entry exists
         existingMap = _(tpMap).find (item) -> item.timerId == resultData.id
         if existingMap is null    
