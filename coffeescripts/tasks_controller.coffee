@@ -327,7 +327,8 @@ tasks_controller = ($scope, $sanitize) ->
     return if $scope.active_timer_id is 0
 
     currentTimer = _($scope.timers).find (item) -> item.id == $scope.active_timer_id
-    runningTimer = currentTimer.running?
+
+    runningTimer = if currentTimer.running? then currentTimer.running else false
 
     if $scope.form_task.tpremaining is `undefined` or $scope.form_task.tpremaining is null
         $scope.remainingRequired = true
