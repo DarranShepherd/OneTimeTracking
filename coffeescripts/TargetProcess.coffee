@@ -93,7 +93,10 @@ class @TPClient.TargetProcess
         currentSpend = parseFloat(task.hours)
         totalSpent = timeAlreadySpent + currentSpend
         remaining = parseFloat(task.tpRemaining)
-        actualRemaining = if remaining - currentSpend < 0 then 0 else remaining - currentSpend
+        actualRemaining = remaining
+        # while posting there is no need to calculate actual remaining
+        #if timeAlreadySpent > 0
+        #    actualRemaining = if remaining - currentSpend < 0 then 0 else remaining - currentSpend
         progress = totalSpent / (totalSpent+actualRemaining)
         mapEntry.tpTask.selected.EffortDetail.Progress = progress.toFixed(2)
       
