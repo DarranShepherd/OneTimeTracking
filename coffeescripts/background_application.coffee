@@ -242,6 +242,9 @@ class BackgroundApplication
       @todays_entries = json.day_entries
       currentlyRunningTimer = null
 
+      #console.log('todays_hours_success')
+      #console.log(@todays_entries)
+
       # Add up total hours by looping thru timesheet entries
       $.each @todays_entries, (i, v) =>
         total_hours += v.hours
@@ -260,6 +263,9 @@ class BackgroundApplication
         # Get entry from map
         existingTask = _.find @todays_entry_tp_map, (map) -> map.timerId == v.id
         if existingTask?
+            
+            #console.log(existingTask)
+        
             # Get effort detail
             effortDetails = existingTask.tpTask.selected.EffortDetail
             # Properties are v.hours, effortDetails.TimeSpent, effortDetail.TimeRemain, v.progress
