@@ -15,7 +15,7 @@ class @TPClient.TargetProcess
   build_ajax_options: (opts = {}) -> $.extend @ajax_defaults, opts
 
   getProjects: (ajax_opts = {}) ->
-    projects_url = @full_url + '/Projects'
+    projects_url = @full_url + '/Projects/?take=500&amp;skip=500'
     ajax_opts = @build_ajax_options.call this, ajax_opts
     $.ajax(projects_url, ajax_opts)
 
