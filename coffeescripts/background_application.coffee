@@ -191,6 +191,7 @@ class BackgroundApplication
     @get_preferences()
     prefs = @preferences
     badge_color = $.hexColorToRGBA prefs.badge_color
+    @modifiedBadgeBackground = badge_color
 
     if theTimer?
         progress = parseFloat(theTimer.progress)
@@ -279,7 +280,7 @@ class BackgroundApplication
             progress = progress * 100
             progress = progress.toFixed(0)
             v.progress = progress
-            currentlyRunningTimer = v
+            currentlyRunningTimer = if v.running then v else null
         @todays_entries[i] = v
       @total_hours = total_hours
 
@@ -291,7 +292,7 @@ class BackgroundApplication
         #@timer_running = true if v.hasOwnProperty('timer_started_at') and v.timer_started_at
         chrome.browserAction.setTitle
           title: "Currently working on: #{@current_task.client} - #{@current_task.project}"
-        @start_badge_flash() if @badge_flash_interval is 0 and prefs.badge_blink
+        @start_badge_flash() #if @badge_flash_interval is 0 and prefs.badge_blink
       else
         @current_hours = 0.0
         #@timer_running = false
@@ -312,7 +313,8 @@ class BackgroundApplication
 
   badge_color: (alpha) =>
     badgeBackgroundColor = if @modifiedBadgeBackground == '' then @preferences.badge_color else @modifiedBadgeBackground
-    color = $.hexColorToRGBA badgeBackgroundColor, alpha
+    # color = $.hexColorToRGBA badgeBackgroundColor, alpha
+    color = badgeBackgroundColor
     chrome.browserAction.setBadgeBackgroundColor color: color
 
   badge_flash: (alpha) =>
