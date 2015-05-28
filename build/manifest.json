@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "OneTimeTracking",
     "short_name": "OneTimeTracking",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "A simple Harvest + TP timesheet manager for Google Chrome",
     "homepage_url": "https://github.com/mikedamage/hayfever-chrome",
     "minimum_chrome_version": "22",
