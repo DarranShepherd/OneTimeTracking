@@ -292,7 +292,7 @@ class BackgroundApplication
         #@timer_running = true if v.hasOwnProperty('timer_started_at') and v.timer_started_at
         chrome.browserAction.setTitle
           title: "Currently working on: #{@current_task.client} - #{@current_task.project}"
-        @start_badge_flash() #if @badge_flash_interval is 0 and prefs.badge_blink
+        @start_badge_flash(prefs.badge_blink) #if @badge_flash_interval is 0 and prefs.badge_blink
       else
         @current_hours = 0.0
         #@timer_running = false
@@ -313,17 +313,24 @@ class BackgroundApplication
 
   badge_color: (alpha) =>
     badgeBackgroundColor = if @modifiedBadgeBackground == '' then @preferences.badge_color else @modifiedBadgeBackground
-    # color = $.hexColorToRGBA badgeBackgroundColor, alpha
-    color = badgeBackgroundColor
+
+    if Array.isArray(badgeBackgroundColor) 
+        color = badgeBackgroundColor
+    else
+        color = $.hexColorToRGBA badgeBackgroundColor, alpha
+
+    #console.log('badge background')
+    #console.log(color)
+    #color = badgeBackgroundColor
     chrome.browserAction.setBadgeBackgroundColor color: color
 
-  badge_flash: (alpha) =>
+  badge_flash: (alpha, blink) =>
     @badge_color 255
-    setTimeout @badge_color, 1000, 100
+    if blink then setTimeout @badge_color, 1000, 100
 
-  start_badge_flash: ->
+  start_badge_flash: (blink) ->
     console.debug 'Starting badge blink'
-    @badge_flash_interval = setInterval @badge_flash, 2000
+    @badge_flash_interval = setInterval @badge_flash, 2000, null, blink
 
   stop_badge_flash: ->
     console.debug 'Stopping badge blink'
