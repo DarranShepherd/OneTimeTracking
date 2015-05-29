@@ -64,7 +64,9 @@ class BackgroundApplication
             @todays_entry_tp_map = JSON.parse(retrievedObject)
             if request.active_timer_id != 0
                 mapEntry = _(@todays_entry_tp_map).find (item) -> item.timerId == request.active_timer_id
-                taskChanged = true if mapEntry.tpTask.selected.Id != request.task.tpTask.selected.Id
+                taskChanged = true if (not mapEntry.tpTask? and request.task.tpTask?) or (mapEntry.tpTask? and not request.task.tpTask?)
+                if mapEntry.tpTask? and request.task.tpTask?
+                    taskChanged = true if mapEntry.tpTask.selected.Id != request.task.tpTask.selected.Id
                 (
                     #remove orginal TP time entry
                     if mapEntry.tpTaskTimerId != 0
@@ -74,6 +76,9 @@ class BackgroundApplication
                     mapEntry.tpProject = request.task.tpProject
                     mapEntry.tpStory = request.task.tpStory
                     mapEntry.tpTask = request.task.tpTask
+                    
+                    # save the map here
+                    localStorage.setItem('tempTpmap', JSON.stringify(@todays_entry_tp_map))
                 ) if taskChanged
                 tpTaskTimerId = mapEntry.tpTaskTimerId
           if request.active_timer_id != 0
@@ -264,22 +269,22 @@ class BackgroundApplication
         # Get entry from map
         existingTask = _.find @todays_entry_tp_map, (map) -> map.timerId == v.id
         if existingTask?
-            
             #console.log(existingTask)
         
-            # Get effort detail
-            effortDetails = existingTask.tpTask.selected.EffortDetail
-            # Properties are v.hours, effortDetails.TimeSpent, effortDetail.TimeRemain, v.progress
-            # calculate progress on the basis of hours spent and allocated
-            timeAlreadySpent = parseFloat(effortDetails.TimeSpent)
-            spent = parseFloat(v.hours)
-            totalSpent = timeAlreadySpent + spent
-            remaining = parseFloat(effortDetails.TimeRemain)
-            actualRemaining = if remaining - spent < 0 then 0 else remaining - spent
-            progress = totalSpent / (totalSpent+actualRemaining)
-            progress = progress * 100
-            progress = progress.toFixed(0)
-            v.progress = progress
+            if existingTask.tpTask?
+                # Get effort detail
+                effortDetails = existingTask.tpTask.selected.EffortDetail
+                # Properties are v.hours, effortDetails.TimeSpent, effortDetail.TimeRemain, v.progress
+                # calculate progress on the basis of hours spent and allocated
+                timeAlreadySpent = parseFloat(effortDetails.TimeSpent)
+                spent = parseFloat(v.hours)
+                totalSpent = timeAlreadySpent + spent
+                remaining = parseFloat(effortDetails.TimeRemain)
+                actualRemaining = if remaining - spent < 0 then 0 else remaining - spent
+                progress = totalSpent / (totalSpent+actualRemaining)
+                progress = progress * 100
+                progress = progress.toFixed(0)
+                v.progress = progress
             currentlyRunningTimer = if v.running then v else null
         @todays_entries[i] = v
       @total_hours = total_hours

@@ -46,7 +46,7 @@ tasks_controller = ($scope, $sanitize) ->
             (
                 
                 progress = 0
-                if mapEntry.tpTask.selected.EffortDetail?
+                if mapEntry.tpTask? and mapEntry.tpTask.selected.EffortDetail?
                     if existingTimer.running or mapEntry.TimerStopped is false
                         # calculate progress on the basis of hours spent and allocated
                         effortDetails = mapEntry.tpTask.selected.EffortDetail
@@ -103,7 +103,7 @@ tasks_controller = ($scope, $sanitize) ->
                 $scope.stoppingAndLoggingTimer = false
                 (
                     progress = 0
-                    if mapEntry.tpTask.selected.EffortDetail?
+                    if mapEntry.tpTask? and mapEntry.tpTask.selected.EffortDetail?
                         if existingTimer.running or mapEntry.TimerStopped is false
                             # calculate progress on the basis of hours spent and allocated
                             effortDetails = mapEntry.tpTask.selected.EffortDetail
@@ -266,9 +266,9 @@ tasks_controller = ($scope, $sanitize) ->
       $scope.form_spinner_visible = true
       tpClient = $scope.theClient
       
-      console.log('tptaskdetail')
-      console.log($scope.form_task.tptask)
-      console.log($scope.form_task)
+      #console.log('tptaskdetail')
+      #console.log($scope.form_task.tptask)
+      #console.log($scope.form_task)
       
       tpTaskDetail  = tpClient.getTaskDetail $scope.form_task.tptask.selected.Id
 
