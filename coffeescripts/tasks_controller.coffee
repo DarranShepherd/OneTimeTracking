@@ -87,7 +87,7 @@ tasks_controller = ($scope, $sanitize) ->
     $scope.theClient     = new TargetProcess(resp.tpClient.subdomain, resp.tpClient.auth_string)
     $scope.tpMap         = resp.tpMap
     $scope.$apply()
-    
+
   $scope.refresh = ->
     $scope.table_spinner_visible = true
     
@@ -165,10 +165,7 @@ tasks_controller = ($scope, $sanitize) ->
         active_timer_id: $scope.active_timer_id
         task: task
         (resp) ->
-            #console.log 'Resp.tpMap is'
-            #console.log resp.tpMap
             $scope.tpMap = resp.tpMap
-            #localStorage.setItem('tempTpmap',JSON.stringify(resp.tpMap))
             $scope.form_spinner_visible = false
             $scope.hide_form()
             $scope.refresh()
@@ -425,6 +422,7 @@ tasks_controller = ($scope, $sanitize) ->
           tpRelatedTasks = tpClient.getTasks selectedTask.UserStory.Id
           tpRelatedTasks.success (relatedTasksJson) =>
             $scope.tasksForStory = _.map(relatedTasksJson.Items, createTaskDetail)
+            $scope.$apply()
 
           # Get list of User Stories
           tpStories = tpClient.getStories selectedTask.Project.Id
@@ -432,12 +430,13 @@ tasks_controller = ($scope, $sanitize) ->
             $scope.storiesForProject.push({ Id: story.Id, Name: story.Name }) for story in userStoriesJson.Items
             selectedUserStory = _.filter $scope.storiesForProject, (story) -> 
                 story.Id == selectedTask.UserStory.Id
-
+            $scope.$apply()
             # Now that we have all the data we can populate the form
             $scope.form_task.tpstory = selected: selectedUserStory[0]
             $scope.form_task.tptask = selected: selectedTask
             $scope.form_task.tpproject = selected: selectedTask.Project
-
+            $scope.$apply()
+            
           window.strProject = '#' + selectedTask.Project.Id
           window.strStory = '#' + selectedTask.Id
           window.strTask = '#' + selectedTask.Id
