@@ -24,6 +24,11 @@ class @TPClient.TargetProcess
     ajax_opts = @build_ajax_options.call this, ajax_opts
     $.ajax(stories_url, ajax_opts)
 
+  getStory: (storyId, ajax_opts = {}) ->
+    story_url = @full_url + '/Userstories/' + storyId + '?include=[id, name, Project]'
+    ajax_opts = @build_ajax_options.call this, ajax_opts
+    $.ajax(story_url, ajax_opts)
+
   getTasks: (storyId, ajax_opts = {}) ->
     tasks_url = @full_url + '/Userstories/' + storyId + '/Tasks/?take=100&amp;skip=100'
     ajax_opts = @build_ajax_options.call this, ajax_opts

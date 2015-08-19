@@ -218,9 +218,6 @@ tasks_controller = ($scope, $sanitize) ->
       $scope.tasks.push task
 
   $scope.story_change = (showingMappedEntry) ->
-    #currentText = $('#task-notes').val()
-    #currentText = currentText.concat(' - #', $scope.form_task.tpstory)
-    #$('#task-notes').val(currentText)
     window.strStory = ' - #' + $scope.form_task.tpstory.selected.Id
     $('#task-notes').val(window.strProject + window.strStory)
     $scope.form_spinner_visible = true
@@ -390,6 +387,35 @@ tasks_controller = ($scope, $sanitize) ->
             $('#task-notes').val(timer.notes)
     $scope.form_visible = true
 
+  $scope.getStoryById = (searchData) ->
+    if ($scope)
+      if (searchData.startsWith('#'))
+        tpClient = $scope.theClient
+        # Get the Task with all Detail we need
+        tpStory = tpClient.getStory searchData.substring(1)
+        tpStory.success (storyJson) ->
+          selectedStory = storyJson
+
+          # Get related User Stories to populate the Story List
+          tpRelatedStories = tpClient.getStories selectedStory.Project.Id
+          tpRelatedStories.success (relatedStoriesJson) ->
+            $scope.storiesForProject.push({ Id: story.Id, Name: story.Name }) for story in relatedStoriesJson.Items
+            selectedUserStory = _.filter $scope.storiesForProject, (story) -> 
+                story.Id == selectedTask.UserStory.Id     
+          
+          # Get related tasks to populate the Task List
+          tpRelatedTasks = tpClient.getTasks selectedStory.Id
+          tpRelatedTasks.success (relatedTasksJson) =>
+            $scope.tasksForStory = _.map(relatedTasksJson.Items, createTaskDetail)  
+
+          $scope.form_task.tpstory = selected: selectedStory
+          $scope.form_task.tpproject = selected: selectedStory.Project   
+          window.strProject = '#' + selectedStory.Project.Id
+          window.strStory = '#' + selectedStory.Id
+          $('#task-notes').val(window.strProject + ' - ' + window.strStory)
+          $scope.form_spinner_visible = false
+          $scope.$apply()                     
+
   $scope.getTaskById = (searchData) ->   
     if ($scope)
       if (searchData.startsWith('#')) 
@@ -418,7 +444,10 @@ tasks_controller = ($scope, $sanitize) ->
             $scope.form_task.tptask = selected: selectedTask
             $scope.form_task.tpproject = selected: selectedTask.Project
 
-          $('#task-notes').val('#' + selectedTask.Project.Id + ' - #' + selectedTask.UserStory.Id + ' - #' + selectedTask.Id)
+          window.strProject = '#' + selectedTask.Project.Id
+          window.strStory = '#' + selectedTask.Id
+          window.strTask = '#' + selectedTask.Id
+          $('#task-notes').val(window.strProject + ' - ' + window.strStory + ' - ' + window.strTask)
           $scope.form_spinner_visible = false
           $scope.$apply()
 

@@ -171,7 +171,7 @@
                                style="width: 250px;"
                                ng-disabled="disabled">
                         <ui-select-match placeholder="Select a story...">{{$select.selected.Name}}</ui-select-match>
-                        <ui-select-choices repeat="story in storiesForProject | filter: $select.search">
+                        <ui-select-choices repeat="story in storiesForProject | filter: $select.search" refresh="getStoryById($select.search)" refresh-delay="200">
                             <span ng-bind-html="story.Name | highlight:$select.search"></span>
                         </ui-select-choices>
                     </ui-select>
