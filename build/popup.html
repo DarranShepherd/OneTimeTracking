@@ -186,7 +186,7 @@
                                style="width: 250px;"
                                ng-disabled="disabled">
                         <ui-select-match placeholder="Select a task...">{{$select.selected.Name}}</ui-select-match>
-                        <ui-select-choices repeat="task in tasksForStory | filter: $select.search">
+                        <ui-select-choices repeat="task in tasksForStory | filter: $select.search" refresh="getTaskById($select.search)" refresh-delay="200">
                             <span ng-bind-html="task.Name | highlight:$select.search" style="color: {{getColour(task)}}"></span>
                         </ui-select-choices>
                     </ui-select>

@@ -87,6 +87,7 @@ tasks_controller = ($scope, $sanitize) ->
     $scope.theClient     = new TargetProcess(resp.tpClient.subdomain, resp.tpClient.auth_string)
     $scope.tpMap         = resp.tpMap
     $scope.$apply()
+
     console.debug "Get Entries"
     #console.debug $scope.timers
     #console.debug $scope.tpMap
@@ -231,25 +232,8 @@ tasks_controller = ($scope, $sanitize) ->
     
     tpClient = $scope.theClient
     tpTasks = tpClient.getTasks $scope.form_task.tpstory.selected.Id
-    #storyTitle = $('#tp-story-select option:selected').text()
-    #currentText = currentText.concat(' - ', storyTitle)
     tpTasks.success (json) =>
-        tasks = json.Items
-        
-        (
-            taskDetail =
-                Id: task.Id
-                Name: task.Name
-                EntityState: task.EntityState
-                EffortDetail:
-                    Effort: task.Effort
-                    EffortCompleted: task.EffortCompleted
-                    EffortToDo: task.EffortToDo
-                    Progress: task.Progress
-                    TimeSpent: task.TimeSpent
-                    TimeRemain: task.TimeRemain
-            $scope.tasksForStory.push taskDetail 
-        ) for task in tasks
+        $scope.tasksForStory = _.map(json.Items, createTaskDetail)
         $scope.form_spinner_visible = false
         $scope.$apply()
         return
@@ -258,6 +242,7 @@ tasks_controller = ($scope, $sanitize) ->
     if (input.EntityState.Name == 'Done')
         return 'LightGray'
     return 'Black'
+
   $scope.task_change = ->
       #taskTitle = $('#tp-task-select option:selected').text()
       #currentText = $('#task-notes').val()
@@ -405,6 +390,38 @@ tasks_controller = ($scope, $sanitize) ->
             $('#task-notes').val(timer.notes)
     $scope.form_visible = true
 
+  $scope.getTaskById = (searchData) ->   
+    if ($scope)
+      if (searchData.startsWith('#')) 
+        tpClient = $scope.theClient
+
+        # Get the Task with all Detail we need
+        tpTask = tpClient.getTaskDetail searchData.substring(1)
+
+        tpTask.success (taskJson) =>
+          selectedTask = taskJson
+
+          # Get related tasks to populate the Task List
+          tpRelatedTasks = tpClient.getTasks selectedTask.UserStory.Id
+          tpRelatedTasks.success (relatedTasksJson) =>
+            $scope.tasksForStory = _.map(relatedTasksJson.Items, createTaskDetail)
+
+          # Get list of User Stories
+          tpStories = tpClient.getStories selectedTask.Project.Id
+          tpStories.success (userStoriesJson) =>
+            $scope.storiesForProject.push({ Id: story.Id, Name: story.Name }) for story in userStoriesJson.Items
+            selectedUserStory = _.filter $scope.storiesForProject, (story) -> 
+                story.Id == selectedTask.UserStory.Id
+
+            # Now that we have all the data we can populate the form
+            $scope.form_task.tpstory = selected: selectedUserStory[0]
+            $scope.form_task.tptask = selected: selectedTask
+            $scope.form_task.tpproject = selected: selectedTask.Project
+
+          $('#task-notes').val('#' + selectedTask.Project.Id + ' - #' + selectedTask.UserStory.Id + ' - #' + selectedTask.Id)
+          $scope.form_spinner_visible = false
+          $scope.$apply()
+
   $scope.hide_form = ->
     $scope.form_visible = false
     $scope.storiesForProject = []
@@ -431,6 +448,19 @@ tasks_controller = ($scope, $sanitize) ->
   $scope.getActualProgress = (progress) ->
     if Number.isFinite(Number(progress)) then progress else '';
 
+createTaskDetail = (task) ->
+  return {
+    Id: task.Id
+    Name: task.Name
+    EntityState: task.EntityState
+    EffortDetail:
+        Effort: task.Effort
+        EffortCompleted: task.EffortCompleted
+        EffortToDo: task.EffortToDo
+        Progress: task.Progress
+        TimeSpent: task.TimeSpent
+        TimeRemain: task.TimeRemain
+    }
 clock_time_filter = ->
   (input) ->
     input.toClockTime()
