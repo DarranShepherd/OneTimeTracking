@@ -87,11 +87,7 @@ tasks_controller = ($scope, $sanitize) ->
     $scope.theClient     = new TargetProcess(resp.tpClient.subdomain, resp.tpClient.auth_string)
     $scope.tpMap         = resp.tpMap
     $scope.$apply()
-
-    console.debug "Get Entries"
-    #console.debug $scope.timers
-    #console.debug $scope.tpMap
-
+    
   $scope.refresh = ->
     $scope.table_spinner_visible = true
     
@@ -100,7 +96,6 @@ tasks_controller = ($scope, $sanitize) ->
            (
                 # Get timer with same id
                 existingTimer = _(resp.timers).find (item) -> item.id == mapEntry.timerId
-                # existingTimer.running = false if $scope.stoppingAndLoggingTimer
                 $scope.stoppingAndLoggingTimer = false
                 (
                     progress = 0
@@ -119,7 +114,6 @@ tasks_controller = ($scope, $sanitize) ->
                         
                     progress = progress * 100
                     progress = progress.toFixed(0)
-                    #console.log(progress)
 
                     existingTimer.progress = progress
                     (
