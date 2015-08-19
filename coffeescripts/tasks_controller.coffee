@@ -205,7 +205,12 @@ tasks_controller = ($scope, $sanitize) ->
   $scope.project_change = ->
     $scope.tasks = []
     current_project = _($scope.projects).find (p) -> p.id == parseInt($scope.form_task.project)
+    
     tasks = current_project.tasks
+    developmentTask = _.filter tasks, (task) -> 
+         task.name == 'Development'
+    if (developmentTask.length > 0)
+      $scope.form_task.task = developmentTask[0].id
 
     tasks.forEach (task) ->
       task.billable_text = if task.billable then 'Billable' else 'Non Billable'
