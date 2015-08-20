@@ -34,10 +34,25 @@ class @TPClient.TargetProcess
     ajax_opts = @build_ajax_options.call this, ajax_opts
     $.ajax(tasks_url, ajax_opts)
 
+  getBugs: (storyId, ajax_opts = {}) ->
+    bugs_url = @full_url + '/Userstories/' + storyId + '/Bugs/?take=100&amp;skip=100'
+    ajax_opts = @build_ajax_options.call this, ajax_opts
+    $.ajax(bugs_url, ajax_opts)
+
   getTaskDetail : (taskId, ajax_opts = {}) ->
-    taskDetail_url = @full_url + '/Tasks/' + taskId + '?skip=0&take=999&include=[id,Name,TimeRemain, Project, UserStory]'
+    taskDetail_url = @full_url + '/Tasks/' + taskId + '?skip=0&take=999&include=[id,Name, TimeRemain, Project, UserStory, EntityType]'
     ajax_opts = @build_ajax_options.call this, ajax_opts
     $.ajax(taskDetail_url, ajax_opts)
+
+  getBugDetail : (bugId, ajax_opts = {}) ->
+    bugDetail_url = @full_url + '/Bugs/' + bugId + '?skip=0&take=999&include=[id,Name,TimeRemain, Project, UserStory, EntityType]'
+    ajax_opts = @build_ajax_options.call this, ajax_opts
+    $.ajax(bugDetail_url, ajax_opts)
+
+  getAssignable : (itemId, ajax_opts = {}) ->
+    assignable_url = @full_url + '/Assignables/' + itemId
+    ajax_opts = @build_ajax_options.call this, ajax_opts
+    $.ajax(assignable_url, ajax_opts)
 
   delete_entry: (eid, ajax_opts = {}) ->
     delete_url       = @full_url + '/times.asmx/' + eid
@@ -91,7 +106,7 @@ class @TPClient.TargetProcess
       #console.log('Into Success Func')
       #console.log(resultData)
       
-      if isStopped
+      if isStopped and mapEntry.tpTask?
         # calculate and assign progress in tpMap
         effortDetails = mapEntry.tpTask.selected.EffortDetail
         timeAlreadySpent = if !oneShotEntry then parseFloat(effortDetails.TimeSpent) else 0
@@ -114,13 +129,18 @@ class @TPClient.TargetProcess
       localStorage.setItem('tempTpmap', JSON.stringify(tpMap))
       return
 
+    if task.tpTask?
+      assignedId = if task.tpTask.selected.EntityType is 'Bug' then task.tpStory.selected.Id else task.tpTask.selected.Id
+    else if task.tpStory?
+      assignedId = task.tpStory.selected.Id
+
     time_entry =
         Description: task.notes
         Spent: task.hours
         Remain: task.tpRemaining
         Date: task.entryDate,
         Assignable:
-            Id: task.tpTask.selected.Id
+            Id: assignedId
     time_struct =
         url: time_url
         type: 'POST'
