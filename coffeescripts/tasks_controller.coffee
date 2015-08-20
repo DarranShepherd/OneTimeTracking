@@ -221,10 +221,14 @@ tasks_controller = ($scope, $sanitize) ->
     tpClient = $scope.theClient
     tpTasks = tpClient.getTasks $scope.form_task.tpstory.selected.Id
     tpTasks.success (json) =>
-        $scope.tasksForStory = _.map(json.Items, createTaskDetail)
-        $scope.form_spinner_visible = false
-        $scope.$apply()
-        return
+        tasksAndBugs = []
+        tasksAndBugs = _.map(json.Items, createTaskDetail)
+        tpRelatedBugs = tpClient.getBugs $scope.form_task.tpstory.selected.Id
+        tpRelatedBugs.success (relatedBugsJson) ->
+          $scope.tasksForStory = tasksAndBugs.concat(_.map(relatedBugsJson.Items, createTaskDetail))         
+          $scope.form_spinner_visible = false
+          $scope.$apply()
+          return
 
   $scope.getColour = (input) -> 
     if (input.EntityState.Name == 'Done')
@@ -247,23 +251,27 @@ tasks_controller = ($scope, $sanitize) ->
       #console.log('tptaskdetail')
       #console.log($scope.form_task.tptask)
       #console.log($scope.form_task)
-      
-      tpTaskDetail  = tpClient.getTaskDetail $scope.form_task.tptask.selected.Id
+      tpAssignable = tpClient.getAssignable $scope.form_task.tptask.selected.Id
 
-      tpTaskDetail.success (json) =>
-            taskDetail = json
+      tpAssignable.success (assignableJson) ->
+        entity = assignableJson
+        if entity.EntityType.Name is 'Task'
+          tpTaskDetail  = tpClient.getTaskDetail $scope.form_task.tptask.selected.Id
 
-            timeRemainUpdated = $scope.form_task.tpremaining
-            if ($scope.form_task.currentTimer? and !$scope.form_task.currentTimer.stopped) or $scope.active_timer_id == 0
-                timeRemainUpdated = if $scope.form_task.hours != null then (if (taskDetail.TimeRemain - $scope.form_task.hours) > 0 then (taskDetail.TimeRemain - $scope.form_task.hours) else 0) else taskDetail.TimeRemain
-                timeRemainUpdated = +(Math.round(timeRemainUpdated + "e+2")  + "e-2")
-            
-            $('#task-hours-remaining').val(timeRemainUpdated)
-            $scope.form_task.tpremaining = timeRemainUpdated
+          tpTaskDetail.success (json) =>
+                taskDetail = json
 
-            $scope.form_spinner_visible = false
-            $scope.$apply()
-            return
+                timeRemainUpdated = $scope.form_task.tpremaining
+                if ($scope.form_task.currentTimer? and !$scope.form_task.currentTimer.stopped) or $scope.active_timer_id == 0
+                    timeRemainUpdated = if $scope.form_task.hours != null then (if (taskDetail.TimeRemain - $scope.form_task.hours) > 0 then (taskDetail.TimeRemain - $scope.form_task.hours) else 0) else taskDetail.TimeRemain
+                    timeRemainUpdated = +(Math.round(timeRemainUpdated + "e+2")  + "e-2")
+                
+                $('#task-hours-remaining').val(timeRemainUpdated)
+                $scope.form_task.tpremaining = timeRemainUpdated
+
+        $scope.form_spinner_visible = false
+        $scope.$apply()
+        return
 
   $scope.set_task_notes = ->
     # Possible future implementation placeholder
@@ -361,21 +369,25 @@ tasks_controller = ($scope, $sanitize) ->
 
         # Now show the tpThings
         mapEntry = _($scope.tpMap).find (item) -> item.timerId == timer_id
-        if mapEntry and mapEntry.tpProject?
+        if mapEntry
+          if mapEntry.tpProject?
             $scope.form_task.tpproject = 
                 selected: mapEntry.tpProject.selected
+            $scope.tp_project_change(true)
+
+          if mapEntry.tpStory?
             $scope.form_task.tpstory =
                 selected: mapEntry.tpStory.selected
+            $scope.story_change(true)
+
+          if mapEntry.tpTask?
             $scope.form_task.tptask =
                 selected: mapEntry.tpTask.selected
-            $scope.form_task.tpremaining = mapEntry.tpRemaining
-
-            # trigger change
-            $scope.tp_project_change(true)
-            $scope.story_change(true)
             $scope.task_change(true)
-           
-            $('#task-notes').val(timer.notes)
+
+          $scope.form_task.tpremaining = mapEntry.tpRemaining
+          $('#task-notes').val(timer.notes)
+
     $scope.form_visible = true
 
   $scope.getStoryById = (searchData) ->
@@ -392,15 +404,23 @@ tasks_controller = ($scope, $sanitize) ->
           tpRelatedStories.success (relatedStoriesJson) ->
             $scope.storiesForProject.push({ Id: story.Id, Name: story.Name }) for story in relatedStoriesJson.Items
             selectedUserStory = _.filter $scope.storiesForProject, (story) -> 
-                story.Id == selectedTask.UserStory.Id     
+                story.Id == selectedStory.Id     
+            $scope.form_task.tpstory = selected: selectedUserStory[0]
           
           # Get related tasks to populate the Task List
           tpRelatedTasks = tpClient.getTasks selectedStory.Id
           tpRelatedTasks.success (relatedTasksJson) =>
-            $scope.tasksForStory = _.map(relatedTasksJson.Items, createTaskDetail)  
+            tasksAndBugs = []
+            tasksAndBugs = _.map(relatedTasksJson.Items, createTaskDetail)
 
-          $scope.form_task.tpstory = selected: selectedStory
-          $scope.form_task.tpproject = selected: selectedStory.Project   
+            tpRelatedBugs = tpClient.getBugs selectedItem.UserStory.Id
+            tpRelatedBugs.success (relatedBugsJson) ->
+              $scope.tasksForStory = tasksAndBugs.concat(_.map(relatedBugsJson.Items, createTaskDetail))          
+
+          selectedProject = _.filter $scope.tpProjects, (project) ->
+            project.Id == selectedStory.Project.Id
+          $scope.form_task.tpproject = selected: selectedProject[0]
+
           window.strProject = '#' + selectedStory.Project.Id
           window.strStory = '#' + selectedStory.Id
           $('#task-notes').val(window.strProject + ' - ' + window.strStory)
@@ -413,47 +433,17 @@ tasks_controller = ($scope, $sanitize) ->
         tpClient = $scope.theClient
 
         # Get the Task with all Detail we need
-        tpTask = tpClient.getTaskDetail searchData.substring(1)
-
-        tpTask.success (taskJson) =>
-          selectedTask = taskJson
-
-          timeRemainUpdated = $scope.form_task.tpremaining
-          if ($scope.form_task.currentTimer? and !$scope.form_task.currentTimer.stopped) or $scope.active_timer_id == 0
-              timeRemainUpdated = if $scope.form_task.hours != null then (if (selectedTask.TimeRemain - $scope.form_task.hours) > 0 then (selectedTask.TimeRemain - $scope.form_task.hours) else 0) else selectedTask.TimeRemain
-              timeRemainUpdated = +(Math.round(timeRemainUpdated + "e+2")  + "e-2")
-          
-          $('#task-hours-remaining').val(timeRemainUpdated)
-          $scope.form_task.tpremaining = timeRemainUpdated
-          $scope.$apply()
-
-          # Get related tasks to populate the Task List
-          tpRelatedTasks = tpClient.getTasks selectedTask.UserStory.Id
-          tpRelatedTasks.success (relatedTasksJson) =>
-            $scope.tasksForStory = _.map(relatedTasksJson.Items, createTaskDetail)
-            taskToUse = _.filter $scope.tasksForStory, (task) ->
-              task.Id == selectedTask.Id
-            $scope.form_task.tptask = selected: taskToUse[0]
-            $scope.$apply()
-
-          # Get list of User Stories
-          tpStories = tpClient.getStories selectedTask.Project.Id
-          tpStories.success (userStoriesJson) =>
-            $scope.storiesForProject.push({ Id: story.Id, Name: story.Name }) for story in userStoriesJson.Items
-            selectedUserStory = _.filter $scope.storiesForProject, (story) -> 
-                story.Id == selectedTask.UserStory.Id
-            $scope.$apply()
-            # Now that we have all the data we can populate the form
-            $scope.form_task.tpstory = selected: selectedUserStory[0]
-            $scope.form_task.tpproject = selected: selectedTask.Project
-            $scope.$apply()
-            
-          window.strProject = '#' + selectedTask.Project.Id
-          window.strStory = '#' + selectedTask.Id
-          window.strTask = '#' + selectedTask.Id
-          $('#task-notes').val(window.strProject + ' - ' + window.strStory + ' - ' + window.strTask)
-          $scope.form_spinner_visible = false
-          $scope.$apply()
+        tpAssignable = tpClient.getAssignable searchData.substring(1)
+        tpAssignable.success (assignableJson) ->
+          entity = assignableJson
+          if entity.EntityType.Name is 'Task'
+            tpTask = tpClient.getTaskDetail searchData.substring(1)
+            tpTask.success (taskJson) ->
+              populateTPFields($scope, tpClient, taskJson)
+          else if entity.EntityType.Name is 'Bug'
+            tpBug = tpClient.getBugDetail searchData.substring(1)
+            tpBug.success (bugJson) ->
+              populateTPFields($scope, tpClient, bugJson)
 
   $scope.hide_form = ->
     $scope.form_visible = false
@@ -481,18 +471,62 @@ tasks_controller = ($scope, $sanitize) ->
   $scope.getActualProgress = (progress) ->
     if Number.isFinite(Number(progress)) then progress else '';
 
-createTaskDetail = (task) ->
+populateTPFields = ($scope, tpClient, selectedItem) ->
+  timeRemainUpdated = $scope.form_task.tpremaining
+  if ($scope.form_task.currentTimer? and !$scope.form_task.currentTimer.stopped) or $scope.active_timer_id == 0
+      timeRemainUpdated = if $scope.form_task.hours != null then (if (selectedItem.TimeRemain - $scope.form_task.hours) > 0 then (selectedItem.TimeRemain - $scope.form_task.hours) else 0) else selectedItem.TimeRemain
+      timeRemainUpdated = +(Math.round(timeRemainUpdated + "e+2")  + "e-2")
+  
+  $('#task-hours-remaining').val(timeRemainUpdated)
+  $scope.form_task.tpremaining = timeRemainUpdated
+  $scope.$apply()
+
+  # Get related tasks to populate the Task List
+  tpRelatedTasks = tpClient.getTasks selectedItem.UserStory.Id
+  tpRelatedTasks.success (relatedTasksJson) =>
+    tasksAndBugs = []
+    tasksAndBugs = _.map(relatedTasksJson.Items, createTaskDetail)
+
+    tpRelatedBugs = tpClient.getBugs selectedItem.UserStory.Id
+    tpRelatedBugs.success (relatedBugsJson) ->
+      $scope.tasksForStory = tasksAndBugs.concat(_.map(relatedBugsJson.Items, createTaskDetail))
+      taskToUse = _.filter $scope.tasksForStory, (task) ->
+        task.Id == selectedItem.Id
+      $scope.form_task.tptask = selected: taskToUse[0]
+      $scope.$apply()
+
+  # Get list of User Stories
+  tpStories = tpClient.getStories selectedItem.Project.Id
+  tpStories.success (userStoriesJson) =>
+    $scope.storiesForProject.push({ Id: story.Id, Name: story.Name }) for story in userStoriesJson.Items
+    selectedUserStory = _.filter $scope.storiesForProject, (story) -> 
+        story.Id == selectedItem.UserStory.Id
+    $scope.$apply()
+    # Now that we have all the data we can populate the form
+    $scope.form_task.tpstory = selected: selectedUserStory[0]
+    $scope.form_task.tpproject = selected: selectedItem.Project
+    $scope.$apply()
+    
+  window.strProject = '#' + selectedItem.Project.Id
+  window.strStory = '#' + selectedItem.Id
+  window.strTask = '#' + selectedItem.Id
+  $('#task-notes').val(window.strProject + ' - ' + window.strStory + ' - ' + window.strTask)
+  $scope.form_spinner_visible = false
+  $scope.$apply()  
+
+createTaskDetail = (item) ->
   return {
-    Id: task.Id
-    Name: task.Name
-    EntityState: task.EntityState
+    Id: item.Id
+    Name: if item.ResourceType is 'Bug' then "[Bug] " + item.Name else item.Name
+    EntityState: item.EntityState
+    EntityType: item.EntityType.Name
     EffortDetail:
-        Effort: task.Effort
-        EffortCompleted: task.EffortCompleted
-        EffortToDo: task.EffortToDo
-        Progress: task.Progress
-        TimeSpent: task.TimeSpent
-        TimeRemain: task.TimeRemain
+        Effort: item.Effort
+        EffortCompleted: item.EffortCompleted
+        EffortToDo: item.EffortToDo
+        Progress: item.Progress
+        TimeSpent: item.TimeSpent
+        TimeRemain: item.TimeRemain
     }
 clock_time_filter = ->
   (input) ->
