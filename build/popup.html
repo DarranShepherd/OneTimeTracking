@@ -171,7 +171,7 @@
                                style="width: 250px;"
                                ng-disabled="disabled">
                         <ui-select-match placeholder="Select a story OR enter #UserStoryID">{{$select.selected.Name}}</ui-select-match>
-                        <ui-select-choices repeat="story in storiesForProject | filter: $select.search" refresh="getStoryById($select.search)" refresh-delay="200">
+                        <ui-select-choices repeat="story in storiesForProject | filter: $select.search" refresh="getStoryById($select.search)" refresh-delay="1000">
                             <span ng-bind-html="story.Name | highlight:$select.search"></span>
                         </ui-select-choices>
                     </ui-select>
@@ -186,7 +186,7 @@
                                style="width: 250px;"
                                ng-disabled="disabled">
                         <ui-select-match placeholder="Select a task OR enter #TaskID">{{$select.selected.Name}}</ui-select-match>
-                        <ui-select-choices repeat="task in tasksForStory | filter: $select.search" refresh="getTaskById($select.search)" refresh-delay="200">
+                        <ui-select-choices repeat="task in tasksForStory | filter: $select.search" refresh="getTaskById($select.search)" refresh-delay="1000">
                             <span ng-bind-html="task.Name | highlight:$select.search" style="color: {{getColour(task)}}"></span>
                         </ui-select-choices>
                     </ui-select>

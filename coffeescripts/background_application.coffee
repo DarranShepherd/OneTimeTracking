@@ -83,8 +83,6 @@ class BackgroundApplication
                 tpTaskTimerId = mapEntry.tpTaskTimerId
           if request.active_timer_id != 0
             result = @client.update_entry request.active_timer_id, request.task, @todays_entry_tp_map, send_json_response
-            #if tpTaskTimerId != 0
-            #  @tpClient.update_entry request.active_timer_id, tpTaskTimerId, request.task, @todays_entry_tp_map, send_json_response
             (
                 # check if the task ID has changed
                 if taskChanged
@@ -100,14 +98,8 @@ class BackgroundApplication
         add_tp_timer: =>
           @tpClient.postTime(request.task, request.timer_id, request.tpMap, true, request.oneShot)
         stop_timer: =>
-          #@tpClient.postTime request.task.notes, request.task.hours, request.task.tpRemaining, request.task.entryDate, request.task.tpTask
           @tpClient.postTime request.task, request.timer_id, @todays_entry_tp_map, true, false
           result = @client.stop_timer request.timer_id, request.task, request.running, @todays_entry_tp_map, send_json_response
-          ###
-          if request.running
-              result = @client.toggle_timer request.timer_id
-              result.complete send_json_response
-          ###
           return
         toggle_timer: =>
           result = @client.toggle_timer request.timer_id
