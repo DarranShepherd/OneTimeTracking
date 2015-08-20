@@ -418,10 +418,22 @@ tasks_controller = ($scope, $sanitize) ->
         tpTask.success (taskJson) =>
           selectedTask = taskJson
 
+          timeRemainUpdated = $scope.form_task.tpremaining
+          if ($scope.form_task.currentTimer? and !$scope.form_task.currentTimer.stopped) or $scope.active_timer_id == 0
+              timeRemainUpdated = if $scope.form_task.hours != null then (if (selectedTask.TimeRemain - $scope.form_task.hours) > 0 then (selectedTask.TimeRemain - $scope.form_task.hours) else 0) else selectedTask.TimeRemain
+              timeRemainUpdated = +(Math.round(timeRemainUpdated + "e+2")  + "e-2")
+          
+          $('#task-hours-remaining').val(timeRemainUpdated)
+          $scope.form_task.tpremaining = timeRemainUpdated
+          $scope.$apply()
+
           # Get related tasks to populate the Task List
           tpRelatedTasks = tpClient.getTasks selectedTask.UserStory.Id
           tpRelatedTasks.success (relatedTasksJson) =>
             $scope.tasksForStory = _.map(relatedTasksJson.Items, createTaskDetail)
+            taskToUse = _.filter $scope.tasksForStory, (task) ->
+              task.Id == selectedTask.Id
+            $scope.form_task.tptask = selected: taskToUse[0]
             $scope.$apply()
 
           # Get list of User Stories
@@ -433,7 +445,6 @@ tasks_controller = ($scope, $sanitize) ->
             $scope.$apply()
             # Now that we have all the data we can populate the form
             $scope.form_task.tpstory = selected: selectedUserStory[0]
-            $scope.form_task.tptask = selected: selectedTask
             $scope.form_task.tpproject = selected: selectedTask.Project
             $scope.$apply()
             
