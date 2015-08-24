@@ -99,7 +99,7 @@ tasks_controller = ($scope, $sanitize) ->
                 $scope.stoppingAndLoggingTimer = false
                 (
                     progress = 0
-                    if mapEntry.tpTask? and mapEntry.tpTask.selected.EffortDetail?
+                    if mapEntry.tpTask? and mapEntry.tpTask.selected? and mapEntry.tpTask.selected.EffortDetail?
                         if existingTimer.running or mapEntry.TimerStopped is false
                             # calculate progress on the basis of hours spent and allocated
                             effortDetails = mapEntry.tpTask.selected.EffortDetail
@@ -148,6 +148,24 @@ tasks_controller = ($scope, $sanitize) ->
     $scope.form_task.notes = $('#task-notes').val()
     $scope.form_spinner_visible = true
 
+    retrivedStorage = localStorage.getItem("tpHarvestProjects")
+    projectMappings = if retrivedStorage? then JSON.parse(retrivedStorage) else []
+    tpProjectId = $scope.form_task.tpproject.selected.Id
+    harvestProjectId = $scope.form_task.project
+
+    existingMappingArray = _.filter projectMappings, (mapping) ->
+      mapping.TPProject == tpProjectId
+
+    if existingMappingArray.length > 0
+      existingMapping = existingMappingArray[0]
+      if existingMapping.HProject != harvestProjectId
+        existingMapping.HProject = harvestProjectId
+    else
+      projectMappings.push newMapping = 
+        TPProject: tpProjectId
+        HProject: harvestProjectId
+
+    localStorage.setItem('tpHarvestProjects', JSON.stringify(projectMappings))
     task =
       project_id: $scope.form_task.project
       task_id: $scope.form_task.task
@@ -176,6 +194,15 @@ tasks_controller = ($scope, $sanitize) ->
     $scope.storiesForProject = []
     $scope.tasksForStory = []
 
+    retrivedStorage = localStorage.getItem("tpHarvestProjects")
+    if retrivedStorage?
+      retrievedProjectMappings = JSON.parse(retrivedStorage) 
+      mappingToUse = _.filter retrievedProjectMappings, (mapping) ->
+        mapping.TPProject == $scope.form_task.tpproject.selected.Id
+      if (mappingToUse.length > 0)
+        $scope.form_task.project = mappingToUse[0].HProject
+        $scope.project_change()
+
     if not showingMappedEntry
         $scope.form_task.tpstory =
             selected: undefined
@@ -183,8 +210,9 @@ tasks_controller = ($scope, $sanitize) ->
             selected: undefined
     tpClient = $scope.theClient
     tpStories = tpClient.getStories $scope.form_task.tpproject.selected.Id
-    # projectTitle = $('#tp-project-select option:selected').val()
-    #$('#task-notes').val('#' + $scope.form_task.tpproject)
+
+
+
     window.strProject = '#' + $scope.form_task.tpproject.selected.Id
     $('#task-notes').val(window.strProject)
     tpStories.success (json) =>
@@ -370,17 +398,17 @@ tasks_controller = ($scope, $sanitize) ->
         # Now show the tpThings
         mapEntry = _($scope.tpMap).find (item) -> item.timerId == timer_id
         if mapEntry
-          if mapEntry.tpProject?
+          if mapEntry.tpProject? and !$.isEmptyObject(mapEntry.tpProject)
             $scope.form_task.tpproject = 
                 selected: mapEntry.tpProject.selected
             $scope.tp_project_change(true)
 
-          if mapEntry.tpStory?
+          if mapEntry.tpStory? and !$.isEmptyObject(mapEntry.tpStory)
             $scope.form_task.tpstory =
                 selected: mapEntry.tpStory.selected
             $scope.story_change(true)
 
-          if mapEntry.tpTask?
+          if mapEntry.tpTask? and !$.isEmptyObject(mapEntry.tpTask)
             $scope.form_task.tptask =
                 selected: mapEntry.tpTask.selected
             $scope.task_change(true)
