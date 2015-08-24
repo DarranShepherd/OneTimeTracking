@@ -263,7 +263,7 @@ class BackgroundApplication
         if existingTask?
             #console.log(existingTask)
         
-            if existingTask.tpTask?
+            if existingTask.tpTask? and existingTask.tpTask.selected?
                 # Get effort detail
                 effortDetails = existingTask.tpTask.selected.EffortDetail
                 # Properties are v.hours, effortDetails.TimeSpent, effortDetail.TimeRemain, v.progress

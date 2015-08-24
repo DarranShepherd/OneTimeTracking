@@ -106,7 +106,7 @@ class @TPClient.TargetProcess
       #console.log('Into Success Func')
       #console.log(resultData)
       
-      if isStopped and mapEntry.tpTask?
+      if isStopped and mapEntry.tpTask? and mapEntry.tpTask.selected?
         # calculate and assign progress in tpMap
         effortDetails = mapEntry.tpTask.selected.EffortDetail
         timeAlreadySpent = if !oneShotEntry then parseFloat(effortDetails.TimeSpent) else 0
@@ -114,9 +114,6 @@ class @TPClient.TargetProcess
         totalSpent = timeAlreadySpent + currentSpend
         remaining = parseFloat(task.tpRemaining)
         actualRemaining = remaining
-        # while posting there is no need to calculate actual remaining
-        #if timeAlreadySpent > 0
-        #    actualRemaining = if remaining - currentSpend < 0 then 0 else remaining - currentSpend
         progress = totalSpent / (totalSpent+actualRemaining)
         mapEntry.tpTask.selected.EffortDetail.Progress = progress.toFixed(2)
       
@@ -129,7 +126,7 @@ class @TPClient.TargetProcess
       localStorage.setItem('tempTpmap', JSON.stringify(tpMap))
       return
 
-    if task.tpTask?
+    if task.tpTask? and task.tpTask.selected?
       assignedId = if task.tpTask.selected.EntityType is 'Bug' then task.tpStory.selected.Id else task.tpTask.selected.Id
     else if task.tpStory?
       assignedId = task.tpStory.selected.Id

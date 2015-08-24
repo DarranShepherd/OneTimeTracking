@@ -126,7 +126,7 @@ class Harvest
         taskDetail = props.tpTask
         taskLogged = false
         oneShotEntry = false
-        if props.hours? and props.tpTask?
+        if props.hours? and props.tpTask? and props.tpTask.selected?
             # get existing effort
             effortDetails = props.tpTask.selected.EffortDetail
             timeAlreadySpent = parseFloat(effortDetails.TimeSpent)
