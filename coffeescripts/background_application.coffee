@@ -143,7 +143,7 @@ class BackgroundApplication
     @todays_entry_tp_map   = []
     @modifiedBadgeBackground = ''
 
-    chrome.browserAction.setTitle title: "One Time Tracking"
+    chrome.browserAction.setTitle title: "Combine for Harvest/TP"
     register_message_listeners.call this
     start_refresh_interval.call this if @subdomain and @auth_string
 
@@ -293,7 +293,7 @@ class BackgroundApplication
       else
         @current_hours = 0.0
         #@timer_running = false
-        chrome.browserAction.setTitle title: 'One Time Tracking'
+        chrome.browserAction.setTitle title: 'Combine for Harvest/TP'
         @stop_badge_flash() if @badge_flash_interval isnt 0
 
       @set_badge(currentlyRunningTimer)

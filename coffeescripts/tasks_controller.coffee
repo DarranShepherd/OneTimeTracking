@@ -441,7 +441,7 @@ tasks_controller = ($scope, $sanitize) ->
             tasksAndBugs = []
             tasksAndBugs = _.map(relatedTasksJson.Items, createTaskDetail)
 
-            tpRelatedBugs = tpClient.getBugs selectedItem.UserStory.Id
+            tpRelatedBugs = tpClient.getBugs selectedStory.Id
             tpRelatedBugs.success (relatedBugsJson) ->
               $scope.tasksForStory = tasksAndBugs.concat(_.map(relatedBugsJson.Items, createTaskDetail))          
 
