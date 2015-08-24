@@ -46,7 +46,7 @@ tasks_controller = ($scope, $sanitize) ->
             (
                 
                 progress = 0
-                if mapEntry.tpTask? and mapEntry.tpTask.selected.EffortDetail?
+                if mapEntry.tpTask? and mapEntry.tpTask.selected? and mapEntry.tpTask.selected.EffortDetail?
                     if existingTimer.running or mapEntry.TimerStopped is false
                         # calculate progress on the basis of hours spent and allocated
                         effortDetails = mapEntry.tpTask.selected.EffortDetail
