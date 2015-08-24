@@ -126,7 +126,7 @@ class @TPClient.TargetProcess
       localStorage.setItem('tempTpmap', JSON.stringify(tpMap))
       return
 
-    if task.tpTask? AND task.tpTask.selected?
+    if task.tpTask? and task.tpTask.selected?
       assignedId = if task.tpTask.selected.EntityType is 'Bug' then task.tpStory.selected.Id else task.tpTask.selected.Id
     else if task.tpStory?
       assignedId = task.tpStory.selected.Id
