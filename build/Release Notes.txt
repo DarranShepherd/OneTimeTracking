@@ -1,0 +1,17 @@
+Combine v1.0.5:
+
+New Features
+
+- Selecting a Harvest Project will default the Harvest Task to "Development" if such task exists in the project
+- Added ability to search for a Target Process Story and Task by ID
+     - Open the relevant box, type # followed by the ID and wait until the data is populated. There is a 1000ms delay from last character typed
+- Added Target Process Bugs to list of Tasks for User Stories that have them. Time will be logged against User Story and not the bug itself
+- Combine will now remember the last Harvest Project you selected for a Target Project. This means logging will be a lot quicker. To change the default simply log a time against the Target Process Project with a different Harvest Project and the default will be overwritten
+- Users can now log time directly against a Target Process User Story, without the need to select a Task. This is mainly for Tech Leads that are helping on a project
+
+Other changes
+
+- Changed the logo
+- Renamed the extension to Combine
+- Changed the "Visit Harvest" link to go directly to the timesheet
+- Remove "Toggle spinners" button
