@@ -150,22 +150,24 @@ tasks_controller = ($scope, $sanitize) ->
 
     retrivedStorage = localStorage.getItem("tpHarvestProjects")
     projectMappings = if retrivedStorage? then JSON.parse(retrivedStorage) else []
-    tpProjectId = $scope.form_task.tpproject.selected.Id
-    harvestProjectId = $scope.form_task.project
+    if $scope.form_task.tpproject? and $scope.form_task.tpproject.selected?
+      tpProjectId = $scope.form_task.tpproject.selected.Id
+      harvestProjectId = $scope.form_task.project
 
-    existingMappingArray = _.filter projectMappings, (mapping) ->
-      mapping.TPProject == tpProjectId
+      existingMappingArray = _.filter projectMappings, (mapping) ->
+        mapping.TPProject == tpProjectId
 
-    if existingMappingArray.length > 0
-      existingMapping = existingMappingArray[0]
-      if existingMapping.HProject != harvestProjectId
-        existingMapping.HProject = harvestProjectId
-    else
-      projectMappings.push newMapping = 
-        TPProject: tpProjectId
-        HProject: harvestProjectId
+      if existingMappingArray.length > 0
+        existingMapping = existingMappingArray[0]
+        if existingMapping.HProject != harvestProjectId
+          existingMapping.HProject = harvestProjectId
+      else
+        projectMappings.push newMapping = 
+          TPProject: tpProjectId
+          HProject: harvestProjectId
 
-    localStorage.setItem('tpHarvestProjects', JSON.stringify(projectMappings))
+      localStorage.setItem('tpHarvestProjects', JSON.stringify(projectMappings))
+
     task =
       project_id: $scope.form_task.project
       task_id: $scope.form_task.task
