@@ -1,4 +1,23 @@
-Combine v1.0.5:
+Combine 
+
+1.0.5.2:
+
+New Features
+
+- Added keyboard shortcuts! Here is the list:
+	- Main window
+		- ALT + A : New timer entry
+		- ALT + R : Refresh all timers
+		- ALT + O : Open Options window
+	- New Timer Entry window
+		- ALT + P : Focus TP Project select
+		- ALT + S : Focus TP Story select
+		- ALT + T : Focus TP Task select
+		- ALT + N : Focus Notes textarea
+		- ENTER : Save timer (if Harvest Project/Task have been entered)
+
+
+1.0.5.1:
 
 New Features
 
