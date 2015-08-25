@@ -1,5 +1,16 @@
 Combine 
 
+1.0.5.3:
+
+New Features
+
+- When selecting a TP Story or Task the associated Feature Name will be added to the end of the Notes, if a Feature has been set for the User Story
+
+Other changes
+
+- When logging time the Remaining figure will default to 0 if no value is set on Target Process, i.e. Bugs
+
+
 1.0.5.2:
 
 New Features
