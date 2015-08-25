@@ -194,14 +194,7 @@ tasks_controller = ($scope, $sanitize) ->
     $scope.storiesForProject = []
     $scope.tasksForStory = []
 
-    retrivedStorage = localStorage.getItem("tpHarvestProjects")
-    if retrivedStorage?
-      retrievedProjectMappings = JSON.parse(retrivedStorage) 
-      mappingToUse = _.filter retrievedProjectMappings, (mapping) ->
-        mapping.TPProject == $scope.form_task.tpproject.selected.Id
-      if (mappingToUse.length > 0)
-        $scope.form_task.project = mappingToUse[0].HProject
-        $scope.project_change()
+    populateTPHarvestProjectMappings($scope, localStorage)
 
     if not showingMappedEntry
         $scope.form_task.tpstory =
@@ -227,10 +220,11 @@ tasks_controller = ($scope, $sanitize) ->
     current_project = _($scope.projects).find (p) -> p.id == parseInt($scope.form_task.project)
     
     tasks = current_project.tasks
-    developmentTask = _.filter tasks, (task) -> 
-         task.name == 'Development'
-    if (developmentTask.length > 0)
-      $scope.form_task.task = developmentTask[0].id
+    if $scope.form_task.task is null
+      developmentTask = _.filter tasks, (task) -> 
+           task.name == 'Development'
+      if developmentTask.length > 0
+        $scope.form_task.task = developmentTask[0].id
 
     tasks.forEach (task) ->
       task.billable_text = if task.billable then 'Billable' else 'Non Billable'
@@ -448,6 +442,8 @@ tasks_controller = ($scope, $sanitize) ->
           selectedProject = _.filter $scope.tpProjects, (project) ->
             project.Id == selectedStory.Project.Id
           $scope.form_task.tpproject = selected: selectedProject[0]
+          populateTPHarvestProjectMappings($scope, localStorage)
+
 
           window.strProject = '#' + selectedStory.Project.Id
           window.strStory = '#' + selectedStory.Id
@@ -534,6 +530,7 @@ populateTPFields = ($scope, tpClient, selectedItem) ->
     $scope.form_task.tpstory = selected: selectedUserStory[0]
     $scope.form_task.tpproject = selected: selectedItem.Project
     $scope.$apply()
+    populateTPHarvestProjectMappings($scope, localStorage)    
     
   window.strProject = '#' + selectedItem.Project.Id
   window.strStory = '#' + selectedItem.Id
@@ -556,6 +553,17 @@ createTaskDetail = (item) ->
         TimeSpent: item.TimeSpent
         TimeRemain: item.TimeRemain
     }
+
+populateTPHarvestProjectMappings = ($scope, localStorage) ->
+  retrivedStorage = localStorage.getItem("tpHarvestProjects")
+  if retrivedStorage?
+    retrievedProjectMappings = JSON.parse(retrivedStorage) 
+    mappingToUse = _.filter retrievedProjectMappings, (mapping) ->
+      mapping.TPProject == $scope.form_task.tpproject.selected.Id
+    if (mappingToUse.length > 0)
+      $scope.form_task.project = mappingToUse[0].HProject
+      $scope.project_change()
+
 clock_time_filter = ->
   (input) ->
     input.toClockTime()
