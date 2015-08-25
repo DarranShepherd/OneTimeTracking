@@ -231,8 +231,6 @@ tasks_controller = ($scope, $sanitize) ->
       $scope.tasks.push task
 
   $scope.story_change = (showingMappedEntry) ->
-    window.strStory = ' - #' + $scope.form_task.tpstory.selected.Id
-    $('#task-notes').val(window.strProject + window.strStory)
     $scope.form_spinner_visible = true
     $scope.tasksForStory = []
 
@@ -241,6 +239,14 @@ tasks_controller = ($scope, $sanitize) ->
             selected: undefined
     
     tpClient = $scope.theClient
+
+    tpStory = tpClient.getStory $scope.form_task.tpstory.selected.Id
+    tpStory.success (storyJson) ->
+      story = storyJson
+      window.featureName = if story.Feature? then ': ' + story.Feature.Name else ''
+      window.strStory = ' - #' + $scope.form_task.tpstory.selected.Id
+      $('#task-notes').val(window.strProject + window.strStory + window.featureName)
+
     tpTasks = tpClient.getTasks $scope.form_task.tpstory.selected.Id
     tpTasks.success (json) =>
         tasksAndBugs = []
@@ -257,22 +263,13 @@ tasks_controller = ($scope, $sanitize) ->
         return 'LightGray'
     return 'Black'
 
-  $scope.task_change = ->
-      #taskTitle = $('#tp-task-select option:selected').text()
-      #currentText = $('#task-notes').val()
-      #currentText = currentText.concat(' - ', taskTitle)
-      #currentText = currentText.concat(' - #', $scope.form_task.tptask)
-      #$('#task-notes').val(currentText)
-      
+  $scope.task_change = ->      
       window.strTask = ' - #'+ $scope.form_task.tptask.selected.Id
-      $('#task-notes').val(window.strProject + window.strStory + window.strTask)
+      $('#task-notes').val(window.strProject + window.strStory + window.strTask + window.featureName)
       
       $scope.form_spinner_visible = true
       tpClient = $scope.theClient
       
-      #console.log('tptaskdetail')
-      #console.log($scope.form_task.tptask)
-      #console.log($scope.form_task)
       tpAssignable = tpClient.getAssignable $scope.form_task.tptask.selected.Id
 
       tpAssignable.success (assignableJson) ->
@@ -323,8 +320,7 @@ tasks_controller = ($scope, $sanitize) ->
   $scope.stop_timer = (timer_id) =>
     $scope.stoppingTimer = true
     $scope.show_form(timer_id)
-    #$scope.table_spinner_visible = true
-    #$scope.refresh()
+
 
   $scope.stop_and_log = (timer_id) =>
     # need to stop the timer in harvest
@@ -381,7 +377,6 @@ tasks_controller = ($scope, $sanitize) ->
       timer = _($scope.timers).find (item) -> item.id == $scope.active_timer_id
 
       if timer
-        #console.log timer
         $scope.form_task.currentTimer = timer
         $scope.form_task.project = parseInt timer.project_id, 10
         $scope.form_task.task = parseInt timer.task_id, 10
@@ -446,8 +441,10 @@ tasks_controller = ($scope, $sanitize) ->
 
 
           window.strProject = '#' + selectedStory.Project.Id
-          window.strStory = '#' + selectedStory.Id
-          $('#task-notes').val(window.strProject + ' - ' + window.strStory)
+          window.strStory = ' - #' + selectedStory.Id
+          window.featureName = if story.Feature? then ': ' + selectedStory.Feature.Name else ''
+
+          $('#task-notes').val(window.strProject  + window.strStory + window.featureName)
           $scope.form_spinner_visible = false
           $scope.$apply()                     
 
@@ -533,9 +530,11 @@ populateTPFields = ($scope, tpClient, selectedItem) ->
     populateTPHarvestProjectMappings($scope, localStorage)    
     
   window.strProject = '#' + selectedItem.Project.Id
-  window.strStory = '#' + selectedItem.Id
-  window.strTask = '#' + selectedItem.Id
-  $('#task-notes').val(window.strProject + ' - ' + window.strStory + ' - ' + window.strTask)
+  window.strStory = ' - #' + selectedItem.UserStory.Id
+  window.strTask = ' - #' + selectedItem.Id
+  window.featureName = if story.Feature? then ': ' + selectedItem.UserStory.Feature.Name else ''
+
+  $('#task-notes').val(window.strProject  + window.strStory + window.strTask + window.featureName)
   $scope.form_spinner_visible = false
   $scope.$apply()  
 

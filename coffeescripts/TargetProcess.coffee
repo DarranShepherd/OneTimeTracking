@@ -25,7 +25,7 @@ class @TPClient.TargetProcess
     $.ajax(stories_url, ajax_opts)
 
   getStory: (storyId, ajax_opts = {}) ->
-    story_url = @full_url + '/Userstories/' + storyId + '?include=[id, name, Project]'
+    story_url = @full_url + '/Userstories/' + storyId + '?include=[id, Name, Project, Feature]'
     ajax_opts = @build_ajax_options.call this, ajax_opts
     $.ajax(story_url, ajax_opts)
 
@@ -40,12 +40,12 @@ class @TPClient.TargetProcess
     $.ajax(bugs_url, ajax_opts)
 
   getTaskDetail : (taskId, ajax_opts = {}) ->
-    taskDetail_url = @full_url + '/Tasks/' + taskId + '?skip=0&take=999&include=[id,Name, TimeRemain, Project, UserStory, EntityType]'
+    taskDetail_url = @full_url + '/Tasks/' + taskId + '?skip=0&take=999&include=[id,Name, TimeRemain, Project, UserStory[Name,Feature], EntityType]'
     ajax_opts = @build_ajax_options.call this, ajax_opts
     $.ajax(taskDetail_url, ajax_opts)
 
   getBugDetail : (bugId, ajax_opts = {}) ->
-    bugDetail_url = @full_url + '/Bugs/' + bugId + '?skip=0&take=999&include=[id,Name,TimeRemain, Project, UserStory, EntityType]'
+    bugDetail_url = @full_url + '/Bugs/' + bugId + '?skip=0&take=999&include=[id,Name, TimeRemain, Project, UserStory[Name,Feature], EntityType]'
     ajax_opts = @build_ajax_options.call this, ajax_opts
     $.ajax(bugDetail_url, ajax_opts)
 
