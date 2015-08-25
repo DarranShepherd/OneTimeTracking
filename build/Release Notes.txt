@@ -1,19 +1,13 @@
-Combine 
+1.0.5.4:
+
+- Fixed issue where user was not able to log a Harvest only timer
 
 1.0.5.3:
 
-New Features
-
 - When selecting a TP Story or Task the associated Feature Name will be added to the end of the Notes, if a Feature has been set for the User Story
-
-Other changes
-
 - When logging time the Remaining figure will default to 0 if no value is set on Target Process, i.e. Bugs
 
-
 1.0.5.2:
-
-New Features
 
 - Added keyboard shortcuts! Here is the list:
 	- Main window
@@ -27,10 +21,7 @@ New Features
 		- ALT + N : Focus Notes textarea
 		- ENTER : Save timer (if Harvest Project/Task have been entered)
 
-
 1.0.5.1:
-
-New Features
 
 - Selecting a Harvest Project will default the Harvest Task to "Development" if such task exists in the project
 - Added ability to search for a Target Process Story and Task by ID
@@ -38,9 +29,6 @@ New Features
 - Added Target Process Bugs to list of Tasks for User Stories that have them. Time will be logged against User Story and not the bug itself
 - Combine will now remember the last Harvest Project you selected for a Target Project. This means logging will be a lot quicker. To change the default simply log a time against the Target Process Project with a different Harvest Project and the default will be overwritten
 - Users can now log time directly against a Target Process User Story, without the need to select a Task. This is mainly for Tech Leads that are helping on a project
-
-Other changes
-
 - Changed the logo
 - Renamed the extension to Combine
 - Changed the "Visit Harvest" link to go directly to the timesheet
