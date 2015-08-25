@@ -402,7 +402,7 @@ tasks_controller = ($scope, $sanitize) ->
                 selected: mapEntry.tpTask.selected
             $scope.task_change(true)
 
-          $scope.form_task.tpremaining = mapEntry.tpRemaining
+          $scope.form_task.tpremaining = if mapEntry.tpRemaining? then mapEntry.tpRemaining else 0
           $('#task-notes').val(timer.notes)
 
     $scope.form_visible = true
@@ -442,7 +442,7 @@ tasks_controller = ($scope, $sanitize) ->
 
           window.strProject = '#' + selectedStory.Project.Id
           window.strStory = ' - #' + selectedStory.Id
-          window.featureName = if story.Feature? then ': ' + selectedStory.Feature.Name else ''
+          window.featureName = if selectedStory.Feature? then ': ' + selectedStory.Feature.Name else ''
 
           $('#task-notes').val(window.strProject  + window.strStory + window.featureName)
           $scope.form_spinner_visible = false
@@ -532,7 +532,7 @@ populateTPFields = ($scope, tpClient, selectedItem) ->
   window.strProject = '#' + selectedItem.Project.Id
   window.strStory = ' - #' + selectedItem.UserStory.Id
   window.strTask = ' - #' + selectedItem.Id
-  window.featureName = if story.Feature? then ': ' + selectedItem.UserStory.Feature.Name else ''
+  window.featureName = if selectedItem.UserStory.Feature? then ': ' + selectedItem.UserStory.Feature.Name else ''
 
   $('#task-notes').val(window.strProject  + window.strStory + window.strTask + window.featureName)
   $scope.form_spinner_visible = false
