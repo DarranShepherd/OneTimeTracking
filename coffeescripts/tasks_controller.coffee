@@ -8,8 +8,10 @@ tasks_controller = ($scope, $sanitize) ->
   # DEBUG MODE: set this to true to show debug content in popup
   $scope.debug_mode            = true
   $scope.form_visible          = false
+  $scope.shortcuts_form_visible = false
   $scope.table_spinner_visible = false
   $scope.form_spinner_visible  = false
+  $scope.reverse_order         = false
   $scope.runaway_timer         = false
   $scope.active_timer_id       = 0
   $scope.current_hours         = 0.0

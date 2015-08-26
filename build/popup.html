@@ -43,16 +43,16 @@
 
 </head>
 <body ng-controller="TasksController">
-    <table cellspacing="0" width="340" id="timesheet">
-        <thead>
+        <table cellspacing="0" width="340" id="timesheet" style="margin-top:30px; display:block; overflow-y:scroll; height:380px; ">
+        <thead style="position: absolute; top:0; left:0; right:0;">
             <tr>
-                <th class="left" width="60%">Task</th>
-                <th>Time</th>
-                <th class="right">Options</th>
+                <th class="left" style="width:280px;">Task</th>
+                <th style="width:50px;">Time</th>
+                <th class="right" style="width:110px;">Options</th>
             </tr>
-        </thead>
+        </thead>            
         <tbody>
-            <tr ng-repeat="timer in timers"
+            <tr ng-repeat="timer in timers | orderBy:'updated_at':reverse_order "
                 id="entry-{{timer.id}}"
                 ng-class="{entry: true, running: timer.running, even: ($index % 2 == 0), odd: ($index % 2 != 0)}"
                 ng-dblclick="toggle_timer(timer.id)">
@@ -70,7 +70,7 @@
                 <td class="entry-hours" width="50" align="center">
                     {{timer.hours}}
                 </td>
-                <td class="entry-toggle" align="center">
+                <td class="entry-toggle" align="center" style="width:100px">
                     <a href="#" class="stop-timer" ng-click="stop_timer(timer.id)" ng-hide="timer.stopped">
                         <span class="fa fa-stop"></span>
                     </a>
@@ -98,19 +98,23 @@
                 </td>
             </tr>
         </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="3" align="left" id="actions">
-                    <a href="#" ng-click="show_form()" accesskey="a"><span class="fa fa-plus"></span></a>
-                    <a href="#" ng-click="refresh()" accesskey="r"><span class="fa fa-refresh"></span></a>
-                    <a href="options.html" target="_blank" accesskey="o"><span class="fa fa-cog"></span></a>
-                    <div id="table-spinner" ng-show="table_spinner_visible"></div>
-                </td>
-            </tr>
-        </tfoot>
+
+            <tfoot style="position: absolute; bottom:115px; left:0; right:0;">
+                <tr>
+                    <td colspan="3" align="left" id="actions" style="width:450px;">
+                        <a href="#" ng-click="show_form()" accesskey="a" title="Add Time"><span class="fa fa-plus"></span></a>
+                        <a href="#" ng-click="refresh()" accesskey="r" title="Refresh"><span class="fa fa-refresh"></span></a>
+                        <a href="options.html" target="_blank" title="Options"><span class="fa fa-cog"></span></a>
+                        <a href="#" ng-click="shortcuts_form_visible = !shortcuts_form_visible" accesskey="k" title="Keyboard Shortcuts"><span class="fa fa-keyboard-o"></span></a>
+                        <a href="#" ng-click="reverse_order = !reverse_order" accesskey="o" style="padding-left:318px" title="Sort"><span class="fa fa-sort"></span></a>
+                        <div id="table-spinner" ng-show="table_spinner_visible"></div>
+                    </td>
+                </tr>
+            </tfoot>
+
     </table>
 
-    <div id="stats">
+    <div id="stats" style="margin-top:40px;">
         <div class="stat-clock" id="total-hours-stat">
             <p id="total-hours-time">{{total_hours | clockTime}}&nbsp;<span class="fa fa-clock-o"></span></p>
             <span class="stat-caption">Total Hours Today</span>
@@ -133,6 +137,66 @@
         </li>
     </ul>
 
+    <div id="shortcuts-overlay" ng-show="shortcuts_form_visible">
+            <div id="shortcuts-list">
+            <p>
+                <a class="cancel" href="#" ng-click="shortcuts_form_visible = false">
+                    <span class="fa fa-times-circle"></span>
+                </a>
+            </p>
+            <fieldset>
+                <legend>Keyboard Shortcuts </legend>
+                <table cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th width="30%">Command</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="mainWindowShortcuts">
+                            <td>ALT + A</td> <td>New timer entry</td>
+                        </tr>
+                        <tr class="mainWindowShortcuts">
+                            <td>ALT + R</td> <td>Refresh all timers</td>
+                        </tr>
+                        <tr class="mainWindowShortcuts">
+                            <td>ALT + O</td> <td>Toggle Sort Order</td>
+                        </tr>         
+                        <tr class="mainWindowShortcuts">
+                            <td>ALT + K</td> <td>Show Keyboard Shortcuts</td>
+                        </tr>         
+                        <tr style="height: 10px;"></tr>           
+                        <tr class="timerShortcuts">
+                            <td>ALT + P</td> <td>Focus TP Project select</td>
+                        </tr>
+                        <tr class="timerShortcuts">
+                            <td>ALT + S</td> <td>Focus TP Story select</td>
+                        </tr>
+                        <tr class="timerShortcuts">
+                            <td>ALT + T</td> <td>Focus TP Task select</td>
+                        </tr>
+                        <tr class="timerShortcuts">
+                            <td>ALT + N</td> <td>Focus Notes textarea</td>
+                        </tr>                        
+                        <tr class="timerShortcuts">
+                            <td>ALT + V</td> <td>Save Timer</td>
+                        </tr>
+                        <tr class="timerShortcuts">
+                            <td>ALT + L</td> <td>Log Timer (STOP button has been clicked)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="font-size: 10px; margin-top: 10px;">
+                    <span class="mainWindowShortcuts">Main Window Shortcuts</span> <br />
+                    <span class="timerShortcuts">Timer Window Shortcuts</span>
+                </div>
+            </fieldset>
+
+
+
+        </div>
+    </div>
     <div id="form-overlay" ng-show="form_visible">
         <form id="entry-form" ng-submit="add_timer()">
             <p>
@@ -233,8 +297,8 @@
                 <textarea id="task-notes" name="task-notes" ng-model="form_task.notes" accesskey="n"></textarea>
             </p>
             <input type="hidden" value="{{active_timer_id}}" ng-model="active_timer_id" name="timer_id">
-            <input type="submit" value="Save" ng-hide="stoppingTimer">
-            <input type="button" value="Log" ng-click="stop_and_log()" ng-show="stoppingTimer">
+            <input type="submit" value="Save" ng-hide="stoppingTimer" accesskey="v">
+            <input type="button" value="Log" ng-click="stop_and_log()" ng-show="stoppingTimer" accesskey="l">
             <input type="button" value="Cancel" ng-click="hide_form()">
             <div id="form-spinner" ng-show="form_spinner_visible"></div>
         </form>

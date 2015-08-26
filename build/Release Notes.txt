@@ -1,3 +1,15 @@
+1.0.5.5 - 
+
+- Added link to see list of keyboard shortcuts
+- Added button to change the sort order of timers
+- Fixed the height of the extension so the scroll bar only moves the timers and not the whole window
+- Added 4 new keyboard shortcuts:
+	- Timer Entry window
+		- ALT + V : Save Timer
+		- ALT + L : Log Timer (This appears when you hit the STOP button on the timer)
+		- ALT + K : Show Keyboard Shortcuts
+		- ALT + O : Change Sort Order
+
 1.0.5.4:
 
 - Fixed issue where user was not able to log a Harvest only timer
@@ -13,13 +25,11 @@
 	- Main window
 		- ALT + A : New timer entry
 		- ALT + R : Refresh all timers
-		- ALT + O : Open Options window
 	- New Timer Entry window
 		- ALT + P : Focus TP Project select
 		- ALT + S : Focus TP Story select
 		- ALT + T : Focus TP Task select
 		- ALT + N : Focus Notes textarea
-		- ENTER : Save timer (if Harvest Project/Task have been entered)
 
 1.0.5.1:
 
