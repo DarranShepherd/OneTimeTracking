@@ -38,7 +38,7 @@ class Harvest
   @returns {Object}
   ###
   build_ajax_options = (opts = {}) -> $.extend @ajax_defaults, opts
-  
+
   ###
   Get API rate limit status
 
@@ -47,7 +47,7 @@ class Harvest
   rate_limit_status: (ajax_opts = {}) ->
     url = build_url.call this, 'account', 'rate_limit_status'
     $.ajax url, build_ajax_options.call(this, ajax_opts)
-  
+
   ###
   Get all timesheet entries (and project list) for a given day
 
@@ -59,7 +59,7 @@ class Harvest
     day_url   = if date is 'today' then build_url.call(this, 'daily') else build_url.call(this, 'daily', date.getDOY(), date.getFullYear())
     ajax_opts = build_ajax_options.call this, ajax_opts
     $.ajax day_url, ajax_opts
-  
+
   ###
   Convenience method for getting today's entries
 
@@ -68,7 +68,7 @@ class Harvest
   ###
   get_today: (ajax_opts = {}) ->
     @get_day('today', ajax_opts)
-  
+
   ###
   Get an individual timer by ID
 
@@ -80,7 +80,7 @@ class Harvest
     url = build_url.call this, 'daily', 'show', eid
     ajax_opts = build_ajax_options.call this, ajax_opts
     $.ajax url, ajax_opts
-  
+
   ###
   Find runaway timers from yesterday
 
@@ -97,7 +97,7 @@ class Harvest
         entries = json.day_entries
         runaways = _(entries).filter (entry) -> entry.hasOwnProperty 'timer_started_at'
         callback.call entries, runaways
-  
+
   ###
   Toggle a single timer on/off
 
@@ -109,7 +109,7 @@ class Harvest
     url       = build_url.call this, 'daily', 'timer', String(eid)
     ajax_opts = build_ajax_options.call this, ajax_opts
     $.ajax url, ajax_opts
-  
+
   ###
   Create a new entry, optional starting its timer on creation
 
@@ -121,14 +121,44 @@ class Harvest
     url       = build_url.call this, 'daily', 'add'
     #console.log 'Adding Entry'
     #console.log props
+    #return
     successFunction = (resultData, textStatus, jqXhr) ->
-        console.log resultData
-        tpMap.push mapEntry = 
+        taskDetail = props.tpTask
+        taskLogged = false
+        oneShotEntry = false
+        if props.hours? and props.tpTask? and props.tpTask.selected?
+            # get existing effort
+            effortDetails = props.tpTask.selected.EffortDetail
+            timeAlreadySpent = parseFloat(effortDetails.TimeSpent)
+            
+            taskDetail.selected.EffortDetail.TimeSpent = props.tpSpent
+            taskDetail.selected.EffortDetail.TimeRemain = props.tpRemaining
+            spent = parseFloat(props.tpSpent)
+            totalSpent = timeAlreadySpent + spent 
+            remaining = parseFloat(props.tpRemaining)
+            progress = totalSpent / (totalSpent+remaining)
+            taskDetail.selected.EffortDetail.Progress = progress.toFixed(2)
+            taskLogged = true
+            oneShotEntry = true
+        
+        tpMap.push mapEntry =
             timerId: resultData.id
             tpProject: props.tpProject
             tpStory: props.tpStory
-            tpTask: props.tpTask
+            tpTask: taskDetail
+            tpTaskTimerId: 0
+            TimerStopped: taskLogged
+            
         resultData.tpMap = tpMap
+        localStorage.setItem('tempTpmap', JSON.stringify(tpMap));
+        if props.hours != null
+         chrome.runtime.sendMessage
+          method: 'add_tp_timer'
+          timer_id: resultData.id
+          task: props
+          tpMap: tpMap
+          oneShot: oneShotEntry
+
         send_json_response resultData
         return
     # commented as global ajax options were getting modified
@@ -140,12 +170,42 @@ class Harvest
     ajax_opts = $.extend ajax_opts, @ajax_defaults
     ajax_opts = $.extend ajax_opts, postOptions
     $.ajax url, ajax_opts
-  
-  stop_timer: (eid, send_json_response, ajax_opts = {}) ->
-    url       = build_url.call this, 'daily', 'timer', String(eid)
-    ajax_opts = build_ajax_options.call this, ajax_opts
+
+  stop_timer: (eid, props, running, tpMap, send_json_response, ajax_opts = {}) ->
+    #url = build_url.call this, 'daily', 'timer', String(eid)
+    #ajax_opts = build_ajax_options.call this, ajax_opts
+    #$.ajax url, ajax_opts
+    url       = build_url.call this, 'daily', 'update', String(eid)
+    toggleUrl = build_url.call this, 'daily', 'timer', String(eid)
+    toggleOptions = build_ajax_options.call this, {}
+    
+    successFunction = (resultData, textStatus, jqXhr) ->
+        # see here if it is running and then send toggle call
+        if running
+            # Toggling after update
+            $.ajax toggleUrl, toggleOptions
+    
+        # check if entry exists
+        existingMap = _(tpMap).find (item) -> item.timerId == resultData.id
+        if existingMap is null    
+            tpMap.push mapEntry =
+                timerId: resultData.id
+                tpProject: props.tpProject
+                tpStory: props.tpStory
+                tpTask: props.tpTask
+        resultData.tpMap = tpMap
+        send_json_response resultData
+        return
+    # ajax_opts = build_ajax_options.call this, $.extend(ajax_opts, type: 'POST', data: props)
+    postOptions =
+        type: 'POST'
+        data: props
+        success: successFunction
+    ajax_opts = $.extend ajax_opts, @ajax_defaults
+    ajax_opts = $.extend ajax_opts, postOptions
     $.ajax url, ajax_opts
-  
+    # toggle_timer eid,{} if running
+
   ###
   Delete an entry
 
@@ -154,10 +214,13 @@ class Harvest
   @returns {jqXHR}
   ###
   delete_entry: (eid, ajax_opts = {}) ->
-    url       = build_url.call this, 'daily', 'delete', String(eid)
-    ajax_opts = build_ajax_options.call this, $.extend(ajax_opts, type: 'DELETE')
-    $.ajax url, ajax_opts
-  
+    delete_url       = build_url.call this, 'daily', 'delete', String(eid)
+    #ajax_opts = build_ajax_options.call this, $.extend(ajax_opts, type: 'DELETE')
+    ajax_temp = {url: delete_url, type:'DELETE'}
+    ajax_opts = $.extend ajax_opts, @ajax_defaults
+    ajax_opts = $.extend ajax_opts, ajax_temp
+    $.ajax ajax_opts
+
   ###
   Update an entry
 
@@ -169,11 +232,14 @@ class Harvest
   update_entry: (eid, props, tpMap, send_json_response, ajax_opts = {}) ->
     url       = build_url.call this, 'daily', 'update', String(eid)
     successFunction = (resultData, textStatus, jqXhr) ->
-        tpMap.push mapEntry = 
-            timerId: resultData.id
-            tpProject: props.tpProject
-            tpStory: props.tpStory
-            tpTask: props.tpTask
+        # check if entry exists
+        existingMap = _(tpMap).find (item) -> item.timerId == resultData.id
+        if existingMap is null
+            tpMap.push mapEntry =
+                timerId: resultData.id
+                tpProject: props.tpProject
+                tpStory: props.tpStory
+                tpTask: props.tpTask
         resultData.tpMap = tpMap
         send_json_response resultData
         return

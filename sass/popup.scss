@@ -132,7 +132,7 @@ ul.toolbar {
 
 }
 
-#form-overlay {
+#form-overlay, #shortcuts-overlay {
   @include transition(all 500ms ease);
   position: absolute;
   width: 100%;
@@ -159,7 +159,7 @@ ul.toolbar {
   }
 }
 
-#entry-form {
+#entry-form, #shortcuts-list {
   @include border-radius(8px);
   font-size: 12px;
   background: white;
@@ -232,6 +232,7 @@ ul.toolbar {
     font-size: 12px;
     height: 60px;
     width: 200px;
+    resize: none;
   }
 
   input[type="submit"], input[type="button"] {
@@ -248,6 +249,14 @@ ul.toolbar {
     &:hover, &:focus {
       background: $popup-button-background-focus;
     }
+  }
+
+  .mainWindowShortcuts {
+    color: red;
+  }
+
+  .timerShortcuts {
+    color: green;
   }
 }
 

@@ -1,17 +1,17 @@
 {
     "manifest_version": 2,
-    "name": "HayfeverExt for Harvest",
-    "short_name": "HayfeverExt",
-    "version": "0.3.7",
+    "name": "Combine for Harvest/TP",
+    "short_name": "Combine",
+    "version": "1.0.5.6",
     "description": "A simple Harvest + TP timesheet manager for Google Chrome",
-    "homepage_url": "https://github.com/mikedamage/hayfever-chrome",
+    "homepage_url": "https://github.com/NewOrbit/OneTimeTracking",
     "minimum_chrome_version": "22",
     "background": {
         "scripts": [
             "js/vendor/sugar/release/sugar.min.js",
             "js/prototype-extensions.js",
             "js/vendor/underscore/underscore-min.js",
-            "js/vendor/jquery/jquery.min.js",
+            "js/vendor/jquery/dist/jquery.min.js",
             "js/jquery.hexcolors.js",
             "js/harvest.js",
             "js/background_application.js",
@@ -22,7 +22,8 @@
     },
     "browser_action": {
         "default_icon": "img/icon.png",
-        "default_popup": "popup.html"
+        "default_popup": "popup.html",
+        "default_title":"Click here!"
     },
     "icons": {
         "48": "img/app_icon_48.png",
