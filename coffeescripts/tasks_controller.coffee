@@ -338,7 +338,7 @@ tasks_controller = ($scope, $sanitize) ->
 
     runningTimer = if currentTimer.running? then currentTimer.running else false
 
-    if $scope.form_task.tpremaining is `undefined` or $scope.form_task.tpremaining is null
+    if $scope.form_task.tpremaining is `undefined` or $scope.form_task.tpremaining is null or $scope.form_task.tpremaining is ''
         $scope.remainingRequired = true
         return
     else

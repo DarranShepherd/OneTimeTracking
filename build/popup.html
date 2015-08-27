@@ -285,13 +285,11 @@
             <p>
                 <label for="task-hours-remaining">Remaining</label>
                 <input type="text" id="task-hours-remaining" value="" name="task-hours-remaining" placeholder="0" ng-model="form_task.tpremaining" size="4" ng-disabled="form_task.currentTimer.stopped" />
-            </p>
-            <div ng-show="remainingRequired">
-                <label>&nbsp;</label>
-                <span>
+                <span style="color: red;" ng-show="remainingRequired">
                     Remaining time is required
                 </span>
-            </div>
+            </p>
+
             <p>
                 <label for="task-notes">Notes</label>
                 <textarea id="task-notes" name="task-notes" ng-model="form_task.notes" accesskey="n"></textarea>
