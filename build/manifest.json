@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Combine for Harvest/TP",
     "short_name": "Combine",
-    "version": "1.0.5.6",
+    "version": "1.0.5.7",
     "description": "A simple Harvest + TP timesheet manager for Google Chrome",
     "homepage_url": "https://github.com/NewOrbit/OneTimeTracking",
     "minimum_chrome_version": "22",
