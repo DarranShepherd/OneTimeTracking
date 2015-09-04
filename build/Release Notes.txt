@@ -1,3 +1,8 @@
+1.0.5.8 - 
+
+- Fixed task notes not showing the Task ID when timer is being logged
+- Correct layout of the spinner so it no longer increases the height of the footer when active
+
 1.0.5.7 - 
 
 - Updated logo
