@@ -237,19 +237,18 @@ tasks_controller = ($scope, $sanitize) ->
   $scope.story_change = (showingMappedEntry) ->
     $scope.form_spinner_visible = true
     $scope.tasksForStory = []
+    tpClient = $scope.theClient
 
     if not showingMappedEntry
         $scope.form_task.tptask =
             selected: undefined
-    
-    tpClient = $scope.theClient
-
-    tpStory = tpClient.getStory $scope.form_task.tpstory.selected.Id
-    tpStory.success (storyJson) ->
-      story = storyJson
-      window.featureName = if story.Feature? then ': ' + story.Feature.Name else ''
-      window.strStory = ' - #' + $scope.form_task.tpstory.selected.Id
-      $('#task-notes').val(window.strProject + window.strStory + window.featureName)
+            
+        tpStory = tpClient.getStory $scope.form_task.tpstory.selected.Id
+        tpStory.success (storyJson) ->
+          story = storyJson
+          window.featureName = if story.Feature? then ': ' + story.Feature.Name else ''
+          window.strStory = ' - #' + $scope.form_task.tpstory.selected.Id
+          $('#task-notes').val(window.strProject + window.strStory + window.featureName)
 
     tpTasks = tpClient.getTasks $scope.form_task.tpstory.selected.Id
     tpTasks.success (json) =>
