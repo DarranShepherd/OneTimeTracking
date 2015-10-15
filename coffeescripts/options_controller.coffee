@@ -32,7 +32,7 @@ options_controller = ($scope) ->
     $scope.tpsubdomain            = items.tp_subdomain
     $scope.tpusername             = items.tp_username
     $scope.tp_auth_string          = items.tp_auth_string    
-    $scope.preferences          = items.hayfever_prefs || { badge_display: 'total', badge_format: 'clock', badge_color: '#207aac' }
+    $scope.preferences          = items.hayfever_prefs || { badge_display: 'total', badge_format: 'clock', badge_color: '#207aac', logBugToUserStory: false }
     $scope.password_placeholder = if $scope.auth_string then 'Password Saved' else 'Enter Password'
     $scope.tp_password_placeholder = if $scope.tp_auth_string then 'Password Saved' else 'Enter Password'
     $scope.$apply()

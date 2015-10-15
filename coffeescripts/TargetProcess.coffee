@@ -97,7 +97,7 @@ class @TPClient.TargetProcess
     ajax_opts = $.extend ajax_opts, postOptions
     $.ajax ajax_opts
 
-  postTime: (task, timerId, tpMap, isStopped, oneShotEntry, send_json_response, ajax_opts = {}) ->
+  postTime: (task, timerId, tpMap, isStopped, oneShotEntry, logBugTimeToUserStory, send_json_response, ajax_opts = {}) ->
     return if not task.hours?
     time_url = @full_url + '/Times/'
     successFunction = (resultData, textStatus, jqXhr) ->
@@ -127,7 +127,11 @@ class @TPClient.TargetProcess
       return
 
     if task.tpTask? and task.tpTask.selected?
-      assignedId = if task.tpTask.selected.EntityType is 'Bug' then task.tpStory.selected.Id else task.tpTask.selected.Id
+      if task.tpTask.selected.EntityType is 'Bug' and logBugTimeToUserStory
+        assignedId = task.tpStory.selected.Id
+      else
+        assignedId = task.tpTask.selected.Id
+
     else if task.tpStory?
       assignedId = task.tpStory.selected.Id
 
