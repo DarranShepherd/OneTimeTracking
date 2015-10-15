@@ -86,8 +86,10 @@ class BackgroundApplication
             (
                 # check if the task ID has changed
                 if taskChanged
+                    @get_preferences()
+                    prefs = @preferences
                     # Add Entry
-                    @tpClient.postTime request.task, request.active_timer_id, @todays_entry_tp_map, true
+                    @tpClient.postTime request.task, request.active_timer_id, @todays_entry_tp_map, true, false, prefs.logBugToUserStory
                 else
                     # Update Entry
                     @tpClient.update_entry request.active_timer_id, tpTaskTimerId, request.task, @todays_entry_tp_map, send_json_response
@@ -96,9 +98,13 @@ class BackgroundApplication
             result = @client.add_entry request.task, @todays_entry_tp_map, send_json_response
           return
         add_tp_timer: =>
-          @tpClient.postTime(request.task, request.timer_id, request.tpMap, true, request.oneShot)
+          @get_preferences()
+          prefs = @preferences
+          @tpClient.postTime(request.task, request.timer_id, request.tpMap, true, request.oneShot, prefs.logBugToUserStory)
         stop_timer: =>
-          @tpClient.postTime request.task, request.timer_id, @todays_entry_tp_map, true, false
+          @get_preferences()
+          prefs = @preferences
+          @tpClient.postTime request.task, request.timer_id, @todays_entry_tp_map, true, false, prefs.logBugToUserStory
           result = @client.stop_timer request.timer_id, request.task, request.running, @todays_entry_tp_map, send_json_response
           return
         toggle_timer: =>
