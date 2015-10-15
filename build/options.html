@@ -59,6 +59,13 @@
                     <label for="tp-password">TP Password</label>
                     <input type="password" placeholder="{{tp_password_placeholder}}" ng-model="tppassword" name="tp-password">
                 </p>
+
+                <h4>Preferences</h4>
+                <p>
+                    <input type="checkbox" id="useEpicsForTpHarvestMapping" name="useEpicsForTpHarvestMapping" ng-model="preferences.useEpicsForTpHarvestMapping" />
+                    <label for="useEpicsForTpHarvestMapping">Use Epics for TP > Harvest Combine mapping</label>
+                </p>
+
             </div>
             <div class="input-group" id="plugin-prefs">
                 <h2>Plugin Preferences</h2>
