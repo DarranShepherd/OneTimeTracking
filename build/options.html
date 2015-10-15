@@ -42,12 +42,6 @@
                     <label for="harvest-password">Harvest Password</label>
                     <input type="password" placeholder="{{password_placeholder}}" ng-model="password" name="harvest-password">
                 </p>
-                <h4>Preferences</h4>
-                <p>
-                    <input type="checkbox" id="log-bug-to-user-story" name="log-bug-to-user-story" ng-model="preferences.logBugToUserStory" />
-                    <label for="log-bug-to-user-story">Log Bug time to parent User Story?</label>
-                </p>
-
             </div>
             <div class="input-group" id="authentication">
                 <h2>Target Process Authentication</h2>
@@ -67,6 +61,10 @@
                 </p>
 
                 <h4>Preferences</h4>
+                <p>
+                    <input type="checkbox" id="log-bug-to-user-story" name="log-bug-to-user-story" ng-model="preferences.logBugToUserStory" />
+                    <label for="log-bug-to-user-story">Log Bug time to parent User Story?</label>
+                </p>                
                 <p>
                     <input type="checkbox" id="useEpicsForTpHarvestMapping" name="useEpicsForTpHarvestMapping" ng-model="preferences.useEpicsForTpHarvestMapping" />
                     <label for="useEpicsForTpHarvestMapping">Use Epics for TP > Harvest Combine mapping</label>

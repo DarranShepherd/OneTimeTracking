@@ -144,6 +144,7 @@ class Harvest
         tpMap.push mapEntry =
             timerId: resultData.id
             tpProject: props.tpProject
+            tpEpic: props.tpEpic
             tpStory: props.tpStory
             tpTask: taskDetail
             tpTaskTimerId: 0

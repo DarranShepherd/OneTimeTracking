@@ -267,8 +267,10 @@ class BackgroundApplication
         # Get entry from map
         existingTask = _.find @todays_entry_tp_map, (map) -> map.timerId == v.id
         if existingTask?
+
+            if existingTask.tpEpic?
+              @todays_entries[i].tpEpic = existingTask.tpEpic
             #console.log(existingTask)
-        
             if existingTask.tpTask? and existingTask.tpTask.selected?
                 # Get effort detail
                 effortDetails = existingTask.tpTask.selected.EffortDetail

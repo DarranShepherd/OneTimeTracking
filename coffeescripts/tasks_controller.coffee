@@ -182,6 +182,7 @@ tasks_controller = ($scope, $sanitize) ->
       hours: $scope.form_task.hours
       notes: $scope.form_task.notes
       tpProject: $scope.form_task.tpproject ? null
+      tpEpic: $scope.form_task.tpepic ? null
       tpStory: $scope.form_task.tpstory ? null
       tpTask: $scope.form_task.tptask ? null
       tpSpent: $scope.form_task.hours
@@ -390,6 +391,7 @@ tasks_controller = ($scope, $sanitize) ->
       if timer
         $scope.form_task.currentTimer = timer
         $scope.form_task.project = parseInt timer.project_id, 10
+        $scope.form_task.tpepic = timer.tpEpic
         $scope.form_task.task = parseInt timer.task_id, 10
         $scope.form_task.hours = timer.hours
         $scope.form_task.notes = timer.notes

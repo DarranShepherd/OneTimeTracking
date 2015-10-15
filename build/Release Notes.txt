@@ -1,3 +1,8 @@
+1.0.6 -
+
+- Added new "Log Bug time to parent User Story" perference check box when working on TP Bugs
+- Added new "Use Epics for TP > Harvest Combine mapping" to force the use of Epics instead of Projects to auto-populate Harvest Project when adding a timer
+
 1.0.5.8 - 
 
 - Fixed task notes not showing the Task ID when timer is being logged
