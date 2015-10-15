@@ -221,12 +221,14 @@
                         </ui-select-choices>
                     </ui-select>
                 </p>
-               <p>
+                <div ng-show="prefs.useEpicsForTpHarvestMapping">
+               <p >
                     <label for="tp-epic">Epic</label>
                     <div style="width: 250px; display: inline-block;">
                         <span ng-bind="form_task.tpepic.Name"></span>
                     </div>
-                </p>                
+                </p> 
+                </div>               
                 <p>
                     <label for="tp-story-select">Story</label>
                     <ui-select id="tp-story-select"
