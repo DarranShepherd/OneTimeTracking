@@ -25,7 +25,7 @@ class @TPClient.TargetProcess
     $.ajax(stories_url, ajax_opts)
 
   getStory: (storyId, ajax_opts = {}) ->
-    story_url = @full_url + '/Userstories/' + storyId + '?include=[id, Name, Project, Feature]'
+    story_url = @full_url + '/Userstories/' + storyId + '?include=[id, Name, Project, Feature[Name,Epic]]'
     ajax_opts = @build_ajax_options.call this, ajax_opts
     $.ajax(story_url, ajax_opts)
 
@@ -40,12 +40,12 @@ class @TPClient.TargetProcess
     $.ajax(bugs_url, ajax_opts)
 
   getTaskDetail : (taskId, ajax_opts = {}) ->
-    taskDetail_url = @full_url + '/Tasks/' + taskId + '?skip=0&take=999&include=[id,Name, TimeRemain, Project, UserStory[Name,Feature], EntityType]'
+    taskDetail_url = @full_url + '/Tasks/' + taskId + '?skip=0&take=999&include=[id,Name, TimeRemain, Project, UserStory[Name,Feature[Name,Epic]], EntityType]'
     ajax_opts = @build_ajax_options.call this, ajax_opts
     $.ajax(taskDetail_url, ajax_opts)
 
   getBugDetail : (bugId, ajax_opts = {}) ->
-    bugDetail_url = @full_url + '/Bugs/' + bugId + '?skip=0&take=999&include=[id,Name, TimeRemain, Project, UserStory[Name,Feature], EntityType]'
+    bugDetail_url = @full_url + '/Bugs/' + bugId + '?skip=0&take=999&include=[id,Name, TimeRemain, Project, UserStory[Name,Feature[Name,Epic]], EntityType]'
     ajax_opts = @build_ajax_options.call this, ajax_opts
     $.ajax(bugDetail_url, ajax_opts)
 
@@ -97,7 +97,7 @@ class @TPClient.TargetProcess
     ajax_opts = $.extend ajax_opts, postOptions
     $.ajax ajax_opts
 
-  postTime: (task, timerId, tpMap, isStopped, oneShotEntry, send_json_response, ajax_opts = {}) ->
+  postTime: (task, timerId, tpMap, isStopped, oneShotEntry, logBugTimeToUserStory, send_json_response, ajax_opts = {}) ->
     return if not task.hours?
     time_url = @full_url + '/Times/'
     successFunction = (resultData, textStatus, jqXhr) ->
@@ -127,7 +127,11 @@ class @TPClient.TargetProcess
       return
 
     if task.tpTask? and task.tpTask.selected?
-      assignedId = if task.tpTask.selected.EntityType is 'Bug' then task.tpStory.selected.Id else task.tpTask.selected.Id
+      if task.tpTask.selected.EntityType is 'Bug' and logBugTimeToUserStory
+        assignedId = task.tpStory.selected.Id
+      else
+        assignedId = task.tpTask.selected.Id
+
     else if task.tpStory?
       assignedId = task.tpStory.selected.Id
 
