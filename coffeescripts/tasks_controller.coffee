@@ -152,12 +152,19 @@ tasks_controller = ($scope, $sanitize) ->
 
     retrivedStorage = localStorage.getItem("tpHarvestProjects")
     projectMappings = if retrivedStorage? then JSON.parse(retrivedStorage) else []
-    if $scope.form_task.tpproject? and $scope.form_task.tpproject.selected?
-      tpProjectId = $scope.form_task.tpproject.selected.Id
-      harvestProjectId = $scope.form_task.project
+    tpIdToMap = 0
 
+    if $scope.prefs.useEpicsForTpHarvestMapping      
+      if $scope.form_task.tpepic?
+        tpIdToMap = $scope.form_task.tpepic.Id
+    else
+      if $scope.form_task.tpproject? and $scope.form_task.tpproject.selected?
+        tpIdToMap = $scope.form_task.tpproject.selected.Id
+
+    if tpIdToMap > 0
+      harvestProjectId = $scope.form_task.project
       existingMappingArray = _.filter projectMappings, (mapping) ->
-        mapping.TPProject == tpProjectId
+        mapping.TPProject == tpIdToMap
 
       if existingMappingArray.length > 0
         existingMapping = existingMappingArray[0]
@@ -165,9 +172,8 @@ tasks_controller = ($scope, $sanitize) ->
           existingMapping.HProject = harvestProjectId
       else
         projectMappings.push newMapping = 
-          TPProject: tpProjectId
-          HProject: harvestProjectId
-
+          TPProject: tpIdToMap
+          HProject: harvestProjectId     
       localStorage.setItem('tpHarvestProjects', JSON.stringify(projectMappings))
 
     task =
@@ -176,6 +182,7 @@ tasks_controller = ($scope, $sanitize) ->
       hours: $scope.form_task.hours
       notes: $scope.form_task.notes
       tpProject: $scope.form_task.tpproject ? null
+      tpEpic: $scope.form_task.tpepic ? null
       tpStory: $scope.form_task.tpstory ? null
       tpTask: $scope.form_task.tptask ? null
       tpSpent: $scope.form_task.hours
@@ -245,8 +252,10 @@ tasks_controller = ($scope, $sanitize) ->
             
         tpStory = tpClient.getStory $scope.form_task.tpstory.selected.Id
         tpStory.success (storyJson) ->
-          story = storyJson
-          window.featureName = if story.Feature? then ': ' + story.Feature.Name else ''
+          story = storyJson          
+          $scope.form_task.tpepic = if story.Feature? and story.Feature.Epic? then story.Feature.Epic else {Id: null, Name: ""}
+          populateTPHarvestProjectMappings($scope, localStorage)
+          window.featureName = if story.Feature != null then ': ' + story.Feature.Name else ''
           window.strStory = ' - #' + $scope.form_task.tpstory.selected.Id
           $('#task-notes').val(window.strProject + window.strStory + window.featureName)
 
@@ -382,6 +391,7 @@ tasks_controller = ($scope, $sanitize) ->
       if timer
         $scope.form_task.currentTimer = timer
         $scope.form_task.project = parseInt timer.project_id, 10
+        $scope.form_task.tpepic = timer.tpEpic
         $scope.form_task.task = parseInt timer.task_id, 10
         $scope.form_task.hours = timer.hours
         $scope.form_task.notes = timer.notes
@@ -426,7 +436,6 @@ tasks_controller = ($scope, $sanitize) ->
             selectedUserStory = _.filter $scope.storiesForProject, (story) -> 
                 story.Id == selectedStory.Id     
             $scope.form_task.tpstory = selected: selectedUserStory[0]
-          
           # Get related tasks to populate the Task List
           tpRelatedTasks = tpClient.getTasks selectedStory.Id
           tpRelatedTasks.success (relatedTasksJson) =>
@@ -440,12 +449,13 @@ tasks_controller = ($scope, $sanitize) ->
           selectedProject = _.filter $scope.tpProjects, (project) ->
             project.Id == selectedStory.Project.Id
           $scope.form_task.tpproject = selected: selectedProject[0]
+          $scope.form_task.tpepic = if selectedStory.Feature? and selectedStory.Feature.Epic? then selectedStory.Feature.Epic else {Id: null, Name: ""}
           populateTPHarvestProjectMappings($scope, localStorage)
 
 
           window.strProject = '#' + selectedStory.Project.Id
           window.strStory = ' - #' + selectedStory.Id
-          window.featureName = if selectedStory.Feature? then ': ' + selectedStory.Feature.Name else ''
+          window.featureName = if selectedStory.Feature != null then ': ' + selectedStory.Feature.Name else ''
 
           $('#task-notes').val(window.strProject  + window.strStory + window.featureName)
           $scope.form_spinner_visible = false
@@ -529,13 +539,14 @@ populateTPFields = ($scope, tpClient, selectedItem) ->
     # Now that we have all the data we can populate the form
     $scope.form_task.tpstory = selected: selectedUserStory[0]
     $scope.form_task.tpproject = selected: selectedItem.Project
+    $scope.form_task.tpepic = if selectedItem.UserStory.Feature? and selectedItem.UserStory.Feature.Epic? then selectedItem.UserStory.Feature.Epic else {Id: null, Name: ""}
     $scope.$apply()
     populateTPHarvestProjectMappings($scope, localStorage)    
     
   window.strProject = '#' + selectedItem.Project.Id
   window.strStory = ' - #' + selectedItem.UserStory.Id
   window.strTask = ' - #' + selectedItem.Id
-  window.featureName = if selectedItem.UserStory.Feature? then ': ' + selectedItem.UserStory.Feature.Name else ''
+  window.featureName = if selectedItem.UserStory.Feature != null then ': ' + selectedItem.UserStory.Feature.Name else ''
 
   $('#task-notes').val(window.strProject  + window.strStory + window.strTask + window.featureName)
   $scope.form_spinner_visible = false
@@ -558,13 +569,19 @@ createTaskDetail = (item) ->
 
 populateTPHarvestProjectMappings = ($scope, localStorage) ->
   retrivedStorage = localStorage.getItem("tpHarvestProjects")
+  mappingToUse = []
   if retrivedStorage?
     retrievedProjectMappings = JSON.parse(retrivedStorage) 
-    mappingToUse = _.filter retrievedProjectMappings, (mapping) ->
-      mapping.TPProject == $scope.form_task.tpproject.selected.Id
+    if $scope.prefs.useEpicsForTpHarvestMapping
+      if $scope.form_task.tpepic?
+        mappingToUse = _.filter retrievedProjectMappings, (mapping) ->
+          mapping.TPProject == $scope.form_task.tpepic.Id
+    else
+      mappingToUse = _.filter retrievedProjectMappings, (mapping) ->
+        mapping.TPProject == $scope.form_task.tpproject.selected.Id      
     if (mappingToUse.length > 0)
       $scope.form_task.project = mappingToUse[0].HProject
-      $scope.project_change()
+      $scope.project_change()    
 
 clock_time_filter = ->
   (input) ->
